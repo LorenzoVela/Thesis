@@ -26,7 +26,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
+parentPage = st.session_state['from']
 dfCol = st.session_state['arg'] #dfCol is a series here
 profile = st.session_state['profile']
 report = st.session_state['report']
@@ -57,7 +57,7 @@ with st.expander("Which action you want to perform?", expanded=True):
 
     elif st.session_state['y'] == 1: #drop case
         st.warning("Do you really want to drop the entire column?")
-        if st.radio("", ["No", "Yes"], horizontal=True) == "Yes":
+        if st.radio("", ["", "No", "Yes"], horizontal=True) == "Yes":
             st.session_state['y'] = 3
             st.experimental_rerun()
         else:
@@ -296,9 +296,16 @@ with st.expander("Which action you want to perform?", expanded=True):
             st.session_state['y'] = 0
             st.experimental_rerun() 
 
-    elif st.session_state['y'] == 12:
-       # dfCol = st.session_state['copyPreview']
+    elif st.session_state['y'] == 12: #Save state
+        
+        #TODO
+        #update the dataframe
+        #do the profile again
+        #remove the old report
+        #load the new one
+        #dfCol = st.session_state['copyPreview']
         #df[dfCol.name] = dfCol.values
+
         nullCount = str(dfCol.isnull().sum())
         successString = "Now the column has now " + nullCount + " null values"
         st.success(successString)
@@ -338,6 +345,12 @@ with st.expander("Which action you want to perform?", expanded=True):
         if st.button("Back"):
             st.session_state['y'] = 0
             st.experimental_rerun()
-if st.button("Back to Dataset Info!"):
+if parentPage == 0:
+    if st.button("Back to Dataset Info!"):
         switch_page("dataset_info")
+
+if parentPage == 1:
+    if st.button("Back to Homepage"):
+        switch_page("Homepage")
+
 

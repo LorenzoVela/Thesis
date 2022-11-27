@@ -38,19 +38,22 @@ with col1_1:
     if(st.button("Profiling")):
         switch_page("profiling")
 with col1_2:
-    if(st.button("Reccomended actions")):
+    if(st.button("Deprecated")):
         switch_page("reccomended_actions")
 with col1_3:
-    if st.button("Dataset Info"):
+    if st.button("**Dataset Info**"):
         switch_page("dataset_info")
         #st.write(df.head())
 with col1_4:
     if st.button("Columns splitting"):
         switch_page("column_splitting")
 with col1_5:
-    st.button("🎂")
+    if st.button("Null values handling"):
+        switch_page("null_values_selection")
 with col1_6:
-    st.button("🎶")
+    if st.button("Values Management"):
+        st.session_state['y'] = 0
+        switch_page("value_filtering")
 with col1_7:
     st.button("🎉")
 with col1_8:

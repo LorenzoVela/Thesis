@@ -19,8 +19,8 @@ m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height: 3.5em;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -71,6 +71,7 @@ with st.expander("Single Column Analysis"):
                 st.error("This attribute has more than 25" + "%" + " of null values")
             with col2:
                 if st.button("Handle null values", key=count):
+                    st.session_state['from'] = 0
                     st.session_state['y'] = 0
                     st.session_state['arg'] = df[col].copy(deep=False)
                     switch_page("null_values")
@@ -130,8 +131,13 @@ with st.expander("Possible redundancies in the data"):
                     st.write("The column " + col1 + " cointans the ", "%0.2f" %(percentageDup), "%" + " of the information present in the column " + col)
                     data_counter += 1
                     if st.checkbox("Show sample", key=data_counter):
-                        st.write("Here are shown the first 10 lines of the two columns")
-                        st.write(df[[col1, col]].head(10))
+                        st.write("Here are shown the first 30 lines of the two columns")
+                        st.write(df[[col1, col]].head(30))
+                        if st.button("Manage"):
+                            st.session_state['y'] = 0
+                            st.session_state['arg'] = df[col].copy(deep=False)
+                            st.session_state['arg1'] = df[col1].copy(deep=False)
+                            switch_page("data_redundancy")
 
 correlations = profile.description_set["correlations"]
 phik_df = correlations["phi_k"]

@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
+from streamlit_extras.no_default_selectbox import selectbox
 
 def update_multiselect_style():
     st.markdown(
@@ -41,9 +42,10 @@ update_multiselect_style()
 m = st.markdown("""
 <style>
 div.stButton > button:first-child {
+    line-height: 1.2;
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height:6em;
+    width:6em;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -59,12 +61,12 @@ distinctList = pd.unique(dfCol)
 distinctNum = len(distinctList)
 percentageDistinct = distinctNum/len(dfCol.index)*100
 with col1:
-    st.write(dfCol.head())
+    st.write(dfCol.head(30))
 with col2:
     if distinctNum != 1:
         st.write("This column has ", distinctNum, " different distinct values (" + "%0.2f" %(percentageDistinct) + "%)")
     else:
-        st.write("This column has only one unique value that is: ")
+        st.write("This column has only one unique value that is: ", dfCol[2])
 list = report["variables"][dfCol.name]["value_counts"]
 with st.expander("Value counter"):
     st.write(list)
@@ -120,6 +122,13 @@ with st.expander("Values replacer"):
             ()
 
     elif st.session_state['y'] == 2:
+
+        #TODO
+        #update the dataframe
+        #do the profile again
+        #remove the old report
+        #load the new one
+
         dfColCopy = st.session_state['dfColCopy']
         df[dfCol.name] = dfColCopy.values
         message2 = st.empty()

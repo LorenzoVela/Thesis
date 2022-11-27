@@ -11,6 +11,23 @@ from time import sleep
 from streamlit_extras.switch_page_button import switch_page
 #def app():
 
+
+def add_bg_from_url():
+    st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background-image: url("https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img,w_900,h_470/https://www.analyticsinsight.net/wp-content/uploads/2019/12/Data-Analytics-will-Drive-the-Growth-of-IoT-1024x535.jpg");
+             background-attachment: fixed;
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
+
+#add_bg_from_url() 
+
 st.title("[prova]Questa è un'app di prova test1")
 st.markdown("Test Markdown")
 
