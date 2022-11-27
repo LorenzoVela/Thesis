@@ -13,8 +13,8 @@ m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height:auto;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -115,11 +115,8 @@ with st.expander("", expanded=True):
         #copyPreview = st.session_state['copyPreview']
         #df[column] = copyPreview.values
         #st.session_state['df'] = df
-
-        st.success("Column uploaded successfully! Redirecting to homepage..")
-        time.sleep(2.5)
-        switch_page("Homepage")
-    if st.button("Back"):
+        st.success("Column updated successfully!")
+    if st.button("Back to column selection"):
         st.session_state['y'] = 0
         st.experimental_rerun()
 

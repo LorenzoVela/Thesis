@@ -28,11 +28,11 @@ def add_bg_from_url():
 
 #add_bg_from_url() 
 
-st.title("[prova]Questa è un'app di prova test1")
-st.markdown("Test Markdown")
+st.title("📁Upload your dataset:")
+#st.markdown("Test Markdown")
 
 def uploading_csv():
-    st.header("📁Upload your dataset:")
+    #st.header("📁Upload your dataset:")
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
@@ -44,7 +44,7 @@ def uploading_csv():
 x = st.session_state['x']
 
 df = uploading_csv()
-
+st.markdown("---")
 def profile_csv(df):
     profile = ProfileReport(df)
     profile.to_file("newProfile.json")

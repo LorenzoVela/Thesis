@@ -103,7 +103,13 @@ with st.expander("Possible Redundancies in column names"):
     for col in dfCol:
         for col1 in dfCol:
             if col != col1 and col in col1:
-                st.write(col + " and " + col1 + " can potentially represent the same data given their similar column name")
+                st.write(f"**{col}** and **{col1}** can potentially represent the same data given their similar column name")
+                name_counter += 1
+                if st.button("Manage", key=name_counter):
+                    st.session_state['y'] = 0
+                    st.session_state['arg'] = df[col].copy(deep=False)
+                    st.session_state['arg1'] = df[col1].copy(deep=False)
+                    switch_page("name_redundancy")
                 name_counter += 1
                 if st.checkbox("Show sample", key=name_counter):
                     st.write("Here are shown the first 10 lines of the two columns")
@@ -128,33 +134,55 @@ with st.expander("Possible redundancies in the data"):
                 if dup > limit:
                     percentageDup = dup / length * 100
                     #st.write(limit)
-                    st.write("The column " + col1 + " cointans the ", "%0.2f" %(percentageDup), "%" + " of the information present in the column " + col)
+                    st.write(f"The column  **{col1}** cointans the ", "%0.2f" %(percentageDup), "%" + " of the information present in the column " + f"**{col}**")
+                    data_counter += 1
+                    if st.button("Manage", key=data_counter):
+                        st.session_state['y'] = 0
+                        st.session_state['arg'] = df[col].copy(deep=False)
+                        st.session_state['arg1'] = df[col1].copy(deep=False)
+                        switch_page("data_redundancy")
                     data_counter += 1
                     if st.checkbox("Show sample", key=data_counter):
                         st.write("Here are shown the first 30 lines of the two columns")
                         st.write(df[[col1, col]].head(30))
-                        if st.button("Manage"):
-                            st.session_state['y'] = 0
-                            st.session_state['arg'] = df[col].copy(deep=False)
-                            st.session_state['arg1'] = df[col1].copy(deep=False)
-                            switch_page("data_redundancy")
+                        
 
 correlations = profile.description_set["correlations"]
 phik_df = correlations["phi_k"]
 #st.title("df.corr")
 #st.write(df.corr())
-st.title("Phi_k.values")
+st.title("Correlation's table")
+with st.expander("More info"):
+    st.write("""
+    This is the **Phi_k** correlation table. Why I've choosen this table? Phi_K is a new and practical correlation coefficient based on several refinements to Pearson’s hypothesis test of independence of two variables.
+    The combined features of Phi_K form an advantage over existing coefficients. First, it works consistently between categorical, ordinal and interval variables. Second, it captures non-linear dependency. Third, it reverts to the Pearson correlation coefficient in case of a bi-variate normal input distribution. Anyway a weak point of this table is that is very expensive from a computational point of view.                                                                                                                                                          
+    Docs available [here](https://phik.readthedocs.io/en/latest/)
+""")
 st.write(phik_df.style.background_gradient())
 #st.write(df.head(100))
 with st.expander("What does the correlation between two columns means?"):
-    st.write("The correlation between two columns is defined as how much values of a column are related with values of another column. In other words we can explain it as: given the value of the column X, with how much confidence I can guess the value on column Y, given also the previous observations?")
+    st.write("The correlation between two columns is defined as how much values of a column are related with values of another column. In other words we can explain it as: given the value of the column X, with how much confidence I can guess the value on column Y, given also the previous observations of X->Y?")
 ind = 1
+st.subheader("List of the correlations that are higher than 60%")
+corrButton = name_counter + 1
 for col in phik_df.columns:
-    if ind < 8:
-        for y in range(ind,9):
+    if ind < (len(phik_df.columns) - 1):
+        for y in range(ind, len(phik_df.columns)):
             x = float(phik_df[col][y])*100
             if x > 60:
-                st.write("The correlation between " + col + " and " + str(phik_df.columns[y]) + " is: ", "%0.2f" %(x) , "%")
+                col1, col2, col3, col4 = st.columns(4, gap="small")
+                with col1:
+                    #st.write(f"Column name is ")
+                    st.write(f"The correlation between  **{col}** and **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
+                with col2:
+                    if st.button("Manage", key=corrButton):
+                        st.session_state['y'] = 0
+                        st.session_state['correlation'] = x
+                        st.session_state['arg'] = df[col].copy(deep=False)
+                        st.session_state['arg1'] = df[phik_df.columns[y]].copy(deep=False)
+                        switch_page("data_correlation")
+                corrButton += 1
+                st.markdown("---")
                 #string1 = '**' + col + '**'
                 #st.markdown(string1)
                 #string = "The correlation between " + col + " and " + str(phik_df.columns[y]) + " is: " + "%0.2f" %(x) + "%"

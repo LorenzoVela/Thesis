@@ -43,7 +43,7 @@ report = st.session_state['report']
 df = st.session_state['df']
 
 if st.session_state['y'] == 0:
-    stringTitle = "Data redundancy between " + dfCol1.name + "and " + dfCol.name
+    stringTitle = "Data redundancy between " + dfCol1.name + " and " + dfCol.name
     st.title(stringTitle)
     col1, col2, col3 = st.columns(3, gap='small')
     with col1:
@@ -107,7 +107,7 @@ elif st.session_state['y'] == 1:
     #do the profile again
     #remove the old report
     #load the new one
-    
+
     switch_page("dataset_info")
 
 else:
