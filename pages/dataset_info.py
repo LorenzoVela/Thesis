@@ -40,6 +40,8 @@ report = st.session_state['report']
 #st.write(df.head())
 
 st.title("Dataset information")
+st.subheader("Preview")
+st.write(df.head(20))
 with st.expander("Legend"):
     st.write("Column type: is the format of the column")
     st.write("Null values is the number of null values within the column")

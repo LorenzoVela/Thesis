@@ -62,7 +62,7 @@ if st.session_state['y'] == 0:
             ()
         with tab2:
             dfCopy = df.copy()
-            strWarning1 = "Do you really want to drop the entire column" + dfCol.name + "?"
+            strWarning1 = "Do you really want to drop the entire column " + dfCol.name + "?"
             st.subheader("New dataset preview")
             dfCopy = dfCopy.drop(dfCol.name, axis=1)
             st.write(dfCopy.head(20))

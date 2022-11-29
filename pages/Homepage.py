@@ -35,29 +35,28 @@ st.write(" ")
 
 col1_1, col1_2, col1_3, col1_4, col1_5, col1_6, col1_7, col1_8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
 with col1_1:
-    if(st.button("Profiling")):
+    if(st.button("Pandas Profiling", key=1)):
         switch_page("profiling")
 with col1_2:
-    if(st.button("Deprecated")):
-        switch_page("reccomended_actions")
-with col1_3:
-    if st.button("**Dataset Info**"):
+    if st.button("Dataset Info", key=2):
         switch_page("dataset_info")
-        #st.write(df.head())
-with col1_4:
-    if st.button("Columns splitting"):
-        switch_page("column_splitting")
-with col1_5:
-    if st.button("Null values handling"):
-        switch_page("null_values_selection")
-with col1_6:
-    if st.button("Values Management"):
+with col1_3:
+    if st.button("Values Management", key=3):
         st.session_state['y'] = 0
         switch_page("value_filtering")
+with col1_4:
+    if st.button("Null values handling", key=4):
+        switch_page("null_values_selection")
+with col1_5:
+    if st.button("Columns splitting", key=5):
+        switch_page("column_splitting")
+with col1_6:
+    if(st.button("--", key=6)):
+        switch_page("reccomended_actions")
 with col1_7:
-    st.button("🎉")
+    st.button("--", key=7)
 with col1_8:
-    st.button("🐱‍🐉")
+    st.button("--", key=8)
 
     
 

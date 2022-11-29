@@ -38,8 +38,12 @@ st.title("Filter column values")
 with st.expander("", expanded=True):
     st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
     column = selectbox("Choose a column", dfCol)
-    col1, col2, col3 = st.columns(3, gap="small")
     if column != None:
+        unique = df.duplicated(subset=column).value_counts()[0]
+        st.write("Unique rows: ", unique)
+        st.write("Duplicate rows", len(df.index) - unique)
+        #st.write("Unique rows: ", df.duplicated(subset=column).value_counts())
+        col1, col2, col3 = st.columns(3, gap="small")
         with col1:
             st.write('Old column')
             st.write(df[column].head(30))
@@ -112,13 +116,21 @@ with st.expander("", expanded=True):
         #remove the old report
         #load the new one
         
-        #copyPreview = st.session_state['copyPreview']
-        #df[column] = copyPreview.values
-        #st.session_state['df'] = df
+        copyPreview = st.session_state['copyPreview']
+        df[copyPreview.name] = copyPreview.values
+        st.session_state['df'] = df
         st.success("Column updated successfully!")
-    if st.button("Back to column selection"):
-        st.session_state['y'] = 0
-        st.experimental_rerun()
+        #st.write(type(copyPreview))
+        #st.write(copyPreview.head(100))
+        newUnique = copyPreview.duplicated().value_counts()[0]
+        st.write("Unique rows of the new column: ", newUnique)
+        st.write("Duplicate rows of the new column: ", len(df.index) - newUnique)
+        #st.write("Non unique rows: ", copyPreview.duplicated().sum())
+        if st.button("Continue with the filtering"):
+            st.session_state['y'] = 0
+            st.experimental_rerun()
+            #st.write("Non unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[1])
+            #st.write("Unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[0])
 
 if st.button("Back to Homepage"):
     switch_page("Homepage")
