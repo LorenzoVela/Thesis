@@ -5,6 +5,24 @@ import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
+import os
+from pandas_profiling import *
+import json
+
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
 
 
 m = st.markdown("""
@@ -46,11 +64,11 @@ corr = st.session_state['correlation']
 if st.session_state['y'] == 0:
     stringTitle = "Data redundancy between " + dfCol1.name + " and " + dfCol.name
     st.title(stringTitle)
-    col1, col2, col3 = st.columns(3, gap='small')
-    with col1:
+    col1_1, col2_1, col3_1, col4_1 = st.columns(4, gap='small')
+    with col1_1:
         st.subheader("Preview of the 2 columns")
         st.write(df[[dfCol1.name, dfCol.name]].head(50))
-    with col2:
+    with col2_1:
         st.write("")
         st.write("")
         st.write("")
@@ -60,7 +78,7 @@ if st.session_state['y'] == 0:
         st.write(f"The column **{dfCol1.name}** and the column **{dfCol.name}** have a correlation of ""%0.2f" %(corr) , "%")
     st.write("**Available actions**")
     strDrop = "Drop " + dfCol.name
-    strDrop1 = "Drop" + dfCol1.name
+    strDrop1 = "Drop " + dfCol1.name
     tab1, tab2, tab3, tab4 = st.tabs(["--", strDrop, strDrop1, "Do nothing"])
 
     with tab1: #default case for visualization's reasons, don't modify
@@ -79,6 +97,13 @@ if st.session_state['y'] == 0:
             #do the profile again
             #remove the old report
             #load the new one
+            df = dfCopy.copy()
+            successMessage = st.empty()
+            successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+            successMessage.success(successString)
+            profileAgain(df)
+            successMessage.success("Profiling updated!")
+
 
 
             st.session_state['y'] = 1
@@ -101,7 +126,7 @@ if st.session_state['y'] == 0:
         switch_page("dataset_info")
 
 elif st.session_state['y'] == 1:
-    st.success("Column successufully dropped, redirecting to dataset_info..")
+    st.success("Redirecting to dataset_info..")
     time.sleep(2.5)
 
     #update the dataframe

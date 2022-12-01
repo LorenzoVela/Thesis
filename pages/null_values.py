@@ -1,18 +1,19 @@
 import time
-
 import numpy as np
 import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
-
+from pandas_profiling import *
+import json
+import os
 
 m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height:auto;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -32,19 +33,45 @@ profile = st.session_state['profile']
 report = st.session_state['report']
 df = st.session_state['df']
 
+def color_survived(val):
+    color = 'palegreen'
+    return f'background-color: {color}'
+
+
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
+
 string = "Managing null values of column " + dfCol.name
 st.title(string)
-col1_1, col2_1, col3_1 = st.columns(3, gap='small')
+col1_1, col2_1, col3_1, col4_1, col5_1 = st.columns(5, gap='small')
 #dfColNew = dfCol.to_frame()
 nullNum = dfCol.isna().sum()
 percentageNull = nullNum/len(dfCol.index)*100
 with col1_1:
-    st.write(dfCol.head())
-with col2_1:
+    st.subheader("Preview")
+    st.write(dfCol.head(20))
+with col3_1:
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
     st.write("This column has ", nullNum, " null values (" + "%0.2f" %(percentageNull) + "%)")
 
-with st.expander("Which action you want to perform?", expanded=True):
+with st.expander("", expanded=True):
     if st.session_state['y'] == 0:
+        st.write("Which action you want to perform?")
         col1_2, col2_2, col3_2, col4_2, col5_2 = st.columns([0.4,1,1,1,1], gap='small')
         with col1_2:
             if st.button("Drop"):
@@ -58,6 +85,7 @@ with st.expander("Which action you want to perform?", expanded=True):
     elif st.session_state['y'] == 1: #drop case
         st.warning("Do you really want to drop the entire column?")
         if st.radio("", ["", "No", "Yes"], horizontal=True) == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['y'] = 3
             st.experimental_rerun()
         else:
@@ -82,7 +110,7 @@ with st.expander("Which action you want to perform?", expanded=True):
                 st.session_state['y'] = 7
                 st.experimental_rerun()
         elif df[dfCol.name].dtype == "float64":
-            fillingOpNum = st.radio("Filling options for " + dfCol.name + ":",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
+            fillingOpNum = st.radio(f"Filling options for **{dfCol.name}** :",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
             if fillingOpNum == "Min":
                 st.session_state['y'] = 13
                 st.experimental_rerun()
@@ -104,9 +132,14 @@ with st.expander("Which action you want to perform?", expanded=True):
 
     elif st.session_state['y'] == 3: #drop confirmed
         df.drop[dfCol.name]
-        st.write(df.head(20))
-        st.session_state['df'] = df
-        st.success("Column dropped successfully")
+        successMessage = st.empty()
+        st.subheader("Preview")
+        st.write(df.head(50))
+        successMessage.success("Column dropped successfully! Please wait while the dataframe is profiled again..")
+        if st.session_state['toBeProfiled'] == True:
+            profileAgain(df)
+        st.session_state['toBeProfiled'] = False
+        successMessage.success("Profiling updated!")
     
     elif st.session_state['y'] == 4: #Replace object with following value
         copyPreview = dfCol.copy()
@@ -120,6 +153,7 @@ with st.expander("Which action you want to perform?", expanded=True):
             st.write(copyPreview.head(30)) 
         radio4 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 4)
         if  radio4 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
@@ -142,6 +176,7 @@ with st.expander("Which action you want to perform?", expanded=True):
             st.write(copyPreview.head(30)) 
         radio5 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 5)
         if  radio5 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
@@ -162,12 +197,13 @@ with st.expander("Which action you want to perform?", expanded=True):
         with col2_6:
             st.write("New column")
             st.write(copyPreview.head(30)) 
-        radio5 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 6)
-        if  radio5 == "Yes":
+        radio6 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 6)
+        if  radio6 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
-        elif radio5 == "No":
+        elif radio6 == "No":
             st.session_state['y'] = 2
             st.experimental_rerun()
         if st.button("Back"):
@@ -186,12 +222,13 @@ with st.expander("Which action you want to perform?", expanded=True):
             with col2_7:
                 st.write("New column")
                 st.write(copyPreview.head(30)) 
-            radio5 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 7)
-            if  radio5 == "Yes":
+            radio7 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 7)
+            if  radio7 == "Yes":
+                st.session_state['toBeProfiled'] = True
                 st.session_state['copyPreview'] = copyPreview
                 st.session_state['y'] = 12
                 st.experimental_rerun()
-            elif radio5 == "No":
+            elif radio7 == "No":
                 st.session_state['y'] = 2
                 st.experimental_rerun()
         if st.button("Back"):
@@ -211,12 +248,13 @@ with st.expander("Which action you want to perform?", expanded=True):
         with col2_8:
             st.write("New column")
             st.write(copyPreview.head(30))
-        radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 8)
-        if  radio == "Yes":
+        radio8 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 8)
+        if  radio8 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
-        elif radio == "No":
+        elif radio8 == "No":
             st.session_state['y'] = 2
             st.experimental_rerun()
         if st.button("Back"):
@@ -236,12 +274,13 @@ with st.expander("Which action you want to perform?", expanded=True):
         with col2_9:
             st.write("New column")
             st.write(copyPreview.head(30))
-        radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 9)
-        if  radio == "Yes":
+        radio9 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 9)
+        if  radio9 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
-        elif radio == "No":
+        elif radio9 == "No":
             st.session_state['y'] = 2
             st.experimental_rerun()
         if st.button("Back"):
@@ -261,12 +300,13 @@ with st.expander("Which action you want to perform?", expanded=True):
         with col2_10:
             st.write("New column")
             st.write(copyPreview.head(30))
-        radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 10)
-        if  radio == "Yes":
+        radio10 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 10)
+        if  radio10 == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
-        elif radio == "No":
+        elif radio10 == "No":
             st.session_state['y'] = 2
             st.experimental_rerun()
         if st.button("Back"):
@@ -286,6 +326,7 @@ with st.expander("Which action you want to perform?", expanded=True):
             st.write(copyPreview.head(30))
         radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 11)
         if  radio == "Yes":
+            st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12
             st.experimental_rerun()
@@ -297,21 +338,29 @@ with st.expander("Which action you want to perform?", expanded=True):
             st.experimental_rerun() 
 
     elif st.session_state['y'] == 12: #Save state
-        
+        successMessage = st.empty()
+
         #TODO
         #update the dataframe
         #do the profile again
         #remove the old report
         #load the new one
-        #dfCol = st.session_state['copyPreview']
-        #df[dfCol.name] = dfCol.values
-
+        
+        dfCol = st.session_state['copyPreview']
         nullCount = str(dfCol.isnull().sum())
-        successString = "Now the column has now " + nullCount + " null values"
-        st.success(successString)
-        if st.button("Back"):
-            st.session_state['y'] = 0
-            st.experimental_rerun()
+        df[dfCol.name] = dfCol.values
+        st.subheader("Preview")
+        st.dataframe(df.head(50).style.applymap(color_survived, subset=[dfCol.name]))
+        #st.write(df.head(20))
+        successString = "Now the column has now " + nullCount + " null values! Please wait while the dataframe is profiled again.."
+        successMessage.success(successString)
+        if st.session_state['toBeProfiled'] == True:
+            profileAgain(df)
+        st.session_state['toBeProfiled'] = False
+        successMessage.success("Profiling updated!")
+        #if st.button("Back"):
+        #    st.session_state['y'] = 0
+        #    st.experimental_rerun()
         #st.write(df.head(20))
         #st.session_state['df'] = df
 
@@ -349,8 +398,10 @@ if parentPage == 0:
     if st.button("Back to Dataset Info!"):
         switch_page("dataset_info")
 
-if parentPage == 1:
+elif parentPage == 1:
     if st.button("Back to Homepage"):
         switch_page("Homepage")
+else:
+    ()
 
 

@@ -7,7 +7,7 @@ import pandas as pd
 from pandas_profiling import *
 import json
 from time import sleep
-
+import os
 from streamlit_extras.switch_page_button import switch_page
 #def app():
 
@@ -46,7 +46,11 @@ x = st.session_state['x']
 df = uploading_csv()
 st.markdown("---")
 def profile_csv(df):
-    profile = ProfileReport(df)
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    #profile = ProfileReport(df, correlations={"auto": {"calculate": False},"pearson": {"calculate": False},"spearman": {"calculate": False},"kendall": {"calculate": False},"phi_k": {"calculate": True},"cramers": {"calculate": False},},)
+    profile = df.profile_report(title="", correlations={"pearson": {"calculate": False},"spearman": {"calculate": False},"kendall": {"calculate": False},"phi_k": {"calculate": True},"cramers": {"calculate": False},},)
+
     profile.to_file("newProfile.json")
     with open("newProfile.json", 'r') as f:
         report = json.load(f)

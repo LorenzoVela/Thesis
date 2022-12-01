@@ -114,8 +114,8 @@ with st.expander("Possible Redundancies in column names"):
                     switch_page("name_redundancy")
                 name_counter += 1
                 if st.checkbox("Show sample", key=name_counter):
-                    st.write("Here are shown the first 10 lines of the two columns")
-                    st.write(df[[col, col1]].head(10))
+                    st.write("Here are shown the first 30 lines of the two columns")
+                    st.write(df[[col, col1]].head(30))
             #if col != col1:
             #    x = jellyfish.jaro_distance(col, col1)
             #    if x >= 0.7:
