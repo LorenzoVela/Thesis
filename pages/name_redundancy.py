@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
-
+from internal_functions import profileAgain
 
 m = st.markdown("""
 <style>
@@ -43,6 +43,7 @@ report = st.session_state['report']
 df = st.session_state['df']
 
 if st.session_state['y'] == 0:
+    st.session_state['toBeProfiled'] = True
     stringTitle = "Names of " + dfCol1.name + " and " + dfCol.name + " are similar, these 2 coumns could have some redundancies"
     st.title(stringTitle)
     col1, col2, col3 = st.columns(3, gap='small')
@@ -65,22 +66,36 @@ if st.session_state['y'] == 0:
             strWarning1 = "Do you really want to drop the entire column " + dfCol.name + "?"
             st.subheader("New dataset preview")
             dfCopy = dfCopy.drop(dfCol.name, axis=1)
-            st.write(dfCopy.head(20))
+            st.write(dfCopy.head(50))
             st.warning(strWarning1)
             if st.button("Confirm", key=3):
-                st.session_state['dropped'] = dfCol
+                df = dfCopy.copy()
+                successMessage = st.empty()
+                successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+                successMessage.success(successString)
+                if st.session_state['toBeProfiled'] == True:
+                    profileAgain(df)
+                st.session_state['toBeProfiled'] = False
                 st.session_state['y'] = 1
+                successMessage.success("Profiling updated!")
                 st.experimental_rerun()
         with tab3:
             dfCopy = df.copy()
             strWarning2 = "Do you really want to drop the entire column " + dfCol1.name + "?"
             st.subheader("New dataset preview")
             dfCopy = dfCopy.drop(dfCol1.name, axis=1)
-            st.write(dfCopy.head(20))
+            st.write(dfCopy.head(50))
             st.warning(strWarning2)
             if st.button("Confirm", key=4):
-                st.session_state['dropped'] = dfCol1
+                df = dfCopy.copy()
+                successMessage = st.empty()
+                successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+                successMessage.success(successString)
+                if st.session_state['toBeProfiled'] == True:
+                    profileAgain(df)
+                st.session_state['toBeProfiled'] = False
                 st.session_state['y'] = 1
+                successMessage.success("Profiling updated!")
                 st.experimental_rerun()
         with tab4: #none
             ()
@@ -89,15 +104,8 @@ if st.session_state['y'] == 0:
         switch_page("dataset_info")
 
 elif st.session_state['y'] == 1:
-    st.success("Column successufully dropped, redirecting to dataset_info..")
+    st.success("Redirecting to dataset_info..")
     time.sleep(2.5)
-    
-    #TODO
-    #update the dataframe
-    #do the profile again
-    #remove the old report
-    #load the new one
-    
     switch_page("dataset_info")
 
 else:

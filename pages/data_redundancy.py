@@ -5,6 +5,10 @@ import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
+import os
+import json
+from pandas_profiling import *
+from internal_functions import profileAgain
 
 
 m = st.markdown("""
@@ -43,6 +47,7 @@ report = st.session_state['report']
 df = st.session_state['df']
 
 if st.session_state['y'] == 0:
+    st.session_state['toBeProfiled'] = True
     stringTitle = "Data redundancy between " + dfCol1.name + " and " + dfCol.name
     st.title(stringTitle)
     col1, col2, col3 = st.columns(3, gap='small')
@@ -79,7 +84,14 @@ if st.session_state['y'] == 0:
         st.write(dfCopy.head(20))
         st.warning(strWarning1)
         if st.button("Confirm", key=3):
-            st.session_state['dropped'] = dfCol
+            df = dfCopy.copy()
+            successMessage = st.empty()
+            successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+            successMessage.success(successString)
+            if st.session_state['toBeProfiled'] == True:
+                profileAgain(df)
+            st.session_state['toBeProfiled'] = False
+            successMessage.success("Profiling updated!")
             st.session_state['y'] = 1
             st.experimental_rerun()
     with tab3:
@@ -90,7 +102,14 @@ if st.session_state['y'] == 0:
         st.write(dfCopy.head(20))
         st.warning(strWarning2)
         if st.button("Confirm", key=4):
-            st.session_state['dropped'] = dfCol1
+            df = dfCopy.copy()
+            successMessage = st.empty()
+            successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+            successMessage.success(successString)
+            if st.session_state['toBeProfiled'] == True:
+                profileAgain(df)
+            st.session_state['toBeProfiled'] = False
+            successMessage.success("Profiling updated!")
             st.session_state['y'] = 1
             st.experimental_rerun()
     with tab4: #none

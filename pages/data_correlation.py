@@ -8,21 +8,9 @@ from streamlit_extras.switch_page_button import switch_page
 import os
 from pandas_profiling import *
 import json
+from internal_functions import profileAgain
 
-def profileAgain(df):
-    if os.path.exists("newProfile.json"):
-        os.remove("newProfile.json")
-    profile = ProfileReport(df)
-    profile.to_file("newProfile.json")
-    with open("newProfile.json", 'r') as f:
-        report = json.load(f)
-    st.session_state['profile'] = profile
-    st.session_state['report'] = report
-    st.session_state['df'] = df
-    newColumns = []
-    for item in df.columns:
-        newColumns.append(item)
-    st.session_state['dfCol'] = newColumns
+
 
 
 m = st.markdown("""
@@ -62,6 +50,7 @@ df = st.session_state['df']
 corr = st.session_state['correlation']
 
 if st.session_state['y'] == 0:
+    st.session_state['toBeProfiled'] = True
     stringTitle = "Data redundancy between " + dfCol1.name + " and " + dfCol.name
     st.title(stringTitle)
     col1_1, col2_1, col3_1, col4_1 = st.columns(4, gap='small')
@@ -101,11 +90,10 @@ if st.session_state['y'] == 0:
             successMessage = st.empty()
             successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
             successMessage.success(successString)
-            profileAgain(df)
+            if st.session_state['toBeProfiled'] == True:
+                profileAgain(df)
+            st.session_state['toBeProfiled'] = False
             successMessage.success("Profiling updated!")
-
-
-
             st.session_state['y'] = 1
             st.experimental_rerun()
     with tab3:
@@ -116,8 +104,15 @@ if st.session_state['y'] == 0:
         st.write(dfCopy.head(20))
         st.warning(strWarning2)
         if st.button("Confirm", key=4):
-            st.session_state['dropped'] = dfCol1
+            df = dfCopy.copy()
+            successMessage = st.empty()
+            successString = "Column successfully dropped! Please wait while the dataframe is profiled again.."
+            successMessage.success(successString)
+            if st.session_state['toBeProfiled'] == True:
+                profileAgain(df)
+            st.session_state['toBeProfiled'] = False
             st.session_state['y'] = 1
+            successMessage.success("Profiling updated!")
             st.experimental_rerun()
     with tab4: #none
         ()
