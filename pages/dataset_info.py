@@ -42,12 +42,35 @@ report = st.session_state['report']
 st.title("Dataset information")
 st.subheader("Preview")
 st.write(df.head(20))
-with st.expander("Legend"):
+with st.expander("**Incomplete Rows**", expanded=True):
+    colNum = len(df.columns)
+    threshold = round(0.4 * colNum) #if a value has 40% of the attribute = NaN it's available for dropping
+    nullList = df.isnull().sum(axis=1).tolist()
+    nullToDelete = []
+    dfToDelete = df.copy()
+    rangeList = list(range(len(nullList)))
+    for i in range(len(nullList)):
+        if nullList[i] >= threshold:
+            nullToDelete.append(i)
+    #st.write()
+    notNullList = [i for i in rangeList if i not in nullToDelete]
+    dfToDelete.drop(notNullList, axis=0, inplace=True)
+    percentageNullRows = len(nullToDelete) / len(df.index) * 100
+    infoStr = "This dataset has " + str(len(nullToDelete)) + " rows (" + str("%0.2f" %(percentageNullRows)) + "%) that have at least " + str(threshold) + " null values out of " + str(len(df.columns))
+    st.info(infoStr)
+    st.subheader("Preview")
+    st.dataframe(dfToDelete.head(50))
+    if st.button("Drop these rows from the dataset", key=-1):
+        #df.drop(nullToDelete, axis=0, inplace=True)
+        #launch profile again
+        ()
+with st.expander("Single Column Analysis' Legend"):
     st.write("Column type: is the format of the column")
     st.write("Null values is the number of null values within the column")
     st.write("Distinct values is the number that indicates how many distinct occurences are present in the column. For example [1, 2, 2, 3] has 3 distinct values: 1,2,3")
     st.write("Unique values is the number that indicates how many unique occurences are present in the column. For example [1, 2, 2, 3] has only 2 unique value that are 1 and 3. Intuitively, if a column doesn't have a lot of unique values it means that the column won't be a useful candidate for the primary key role.")
     st.write("")
+
 with st.expander("Single Column Analysis"):
     count = 0
     distinctButton = nullButton = 0
