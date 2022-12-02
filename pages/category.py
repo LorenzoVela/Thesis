@@ -8,6 +8,7 @@ from streamlit_extras.no_default_selectbox import selectbox
 import os
 from pandas_profiling import *
 import json
+import numpy as np
 
 
 
@@ -20,6 +21,9 @@ def update_multiselect_style():
             }
             .stMultiSelect [data-baseweb="tag"] span[title] {
                 white-space: normal; max-width: 100%; overflow-wrap: anywhere;
+            }
+            span[data-baseweb="tag"] {
+                background-color: indianred !important;
             }
         </style>
         """,
@@ -113,8 +117,18 @@ with st.expander("Values replacer"):
     if st.session_state['y'] == 0:  #choose the values to replace
         #old_values = []
         #new_value = []
-        old_values = st.multiselect("Replace all these values",distinctList)
-        new_value = st.selectbox("With the value", distinctList)
+        CdistinctList = distinctList.copy()
+        CdistinctList = np.insert(CdistinctList, 0, "Custom Value")
+        CdistinctList = np.insert(CdistinctList, 0, "--")
+        new_value = st.selectbox("Final value", CdistinctList)
+        if new_value == "Custom Value":
+            new_value = st.text_input("Insert a custom final value")
+        predefinedList = []
+        if new_value != "":
+            for i in range(len(distinctList)):
+                if (str(new_value) != str(distinctList[i])) and ((str(new_value).lower() in str(distinctList[i]).lower()) or (str(distinctList[i]).lower() in str(new_value).lower())):
+                    predefinedList.append(distinctList[i])
+        old_values = st.multiselect("Replace all these values, matching categories will be provided by default",distinctList,predefinedList)
         st.session_state['old_values'] = old_values
         st.session_state['new_value'] = new_value
         valueButton = False

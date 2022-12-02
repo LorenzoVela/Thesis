@@ -1,5 +1,4 @@
 import time
-
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -7,7 +6,7 @@ import random
 from streamlit_extras.switch_page_button import switch_page
 from streamlit_extras.no_default_selectbox import selectbox
 from streamlit_extras.st_keyup import st_keyup
-
+from internal_functions import profileAgain
 
 m = st.markdown("""
 <style>
@@ -103,25 +102,23 @@ with st.expander("", expanded=True):
                 copyPreview = st.session_state['copyPreview']
                 st.write(copyPreview.head(30))
                 if st.button("Save"):
+                    st.session_state['toBeProfiled'] = True
                     st.session_state['y'] = 5
                     st.experimental_rerun()
             
     else: #column is none
         ()
     if st.session_state['y'] == 5:
-        
-        #TODO
-        #update the dataframe
-        #do the profile again
-        #remove the old report
-        #load the new one
-        
         copyPreview = st.session_state['copyPreview']
         df[copyPreview.name] = copyPreview.values
-        st.session_state['df'] = df
-        st.success("Column updated successfully!")
-        #st.write(type(copyPreview))
-        #st.write(copyPreview.head(100))
+        successMessage = st.empty()
+        successString = "Column successfully updated! Please wait while the dataframe is profiled again.."
+        successMessage.success(successString)
+        if st.session_state['toBeProfiled'] == True:
+            profileAgain(df)
+        st.session_state['toBeProfiled'] = False
+        st.session_state['y'] = 1
+        successMessage.success("Profiling updated!")
         newUnique = copyPreview.duplicated().value_counts()[0]
         st.write("Unique rows of the new column: ", newUnique)
         st.write("Duplicate rows of the new column: ", len(df.index) - newUnique)
