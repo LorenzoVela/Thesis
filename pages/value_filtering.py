@@ -6,7 +6,28 @@ import random
 from streamlit_extras.switch_page_button import switch_page
 from streamlit_extras.no_default_selectbox import selectbox
 from streamlit_extras.st_keyup import st_keyup
-from internal_functions import profileAgain
+import os
+import json
+from pandas_profiling import *
+
+
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
+
+
+
 
 m = st.markdown("""
 <style>
@@ -34,7 +55,7 @@ df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 
 st.title("Filter column values")
-with st.expander("", expanded=True):
+with st.expander("Manual", expanded=False):
     st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
     column = selectbox("Choose a column", dfCol)
     if column != None:
@@ -128,6 +149,41 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
             #st.write("Non unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[1])
             #st.write("Unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[0])
+
+with st.expander("Automatic", expanded=False):
+    st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
+    column = selectbox("Choose a columnn", dfCol)
+    delimiters = [",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
+    if column != None:
+        counter = 0
+        importantDelimiters = []
+        copyPreview = df[column].copy()
+        unique = df.duplicated(subset=column).value_counts()[0]
+        st.write("Unique rows: ", unique)
+        st.write("Duplicate rows", len(df.index) - unique)
+        #st.write("Unique rows: ", df.duplicated(subset=column).value_counts())
+        col1, col2, col3 = st.columns(3, gap="small")
+        with col1:
+            st.write('Old column')
+            st.write(df[column].head(30))
+        with col2:
+            if st.session_state['y'] == 0:
+                st.write("Edit menu")
+                for item in delimiters:
+                    counter = 0
+                    for i in range(int(len(df.index)/10)):  #search for a delimiter in the first 10% of the dataset
+                        x = str(copyPreview[i]).find(item)
+                        if x > 0:
+                            counter += 1
+                    if counter >= (len(df.index)/50):  #if in the first 10%, is present at least the 20% then we should propose it!
+                        importantDelimiters.append(item)
+                st.write(importantDelimiters)
+                
+                
+
+
+
+
 
 if st.button("Back to Homepage"):
     switch_page("Homepage")

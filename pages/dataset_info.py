@@ -14,6 +14,24 @@ from streamlit_extras.echo_expander import echo_expander
 from streamlit_extras.toggle_switch import st_toggle_switch
 from streamlit_extras.stoggle import stoggle
 from random import *
+import os
+
+
+
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
 
 m = st.markdown("""
 <style>
@@ -42,7 +60,7 @@ report = st.session_state['report']
 st.title("Dataset information")
 st.subheader("Preview")
 st.write(df.head(20))
-with st.expander("**Incomplete Rows**", expanded=True):
+with st.expander("Incomplete Rows", expanded=True):
     colNum = len(df.columns)
     threshold = round(0.4 * colNum) #if a value has 40% of the attribute = NaN it's available for dropping
     nullList = df.isnull().sum(axis=1).tolist()
@@ -53,17 +71,30 @@ with st.expander("**Incomplete Rows**", expanded=True):
         if nullList[i] >= threshold:
             nullToDelete.append(i)
     #st.write()
-    notNullList = [i for i in rangeList if i not in nullToDelete]
-    dfToDelete.drop(notNullList, axis=0, inplace=True)
-    percentageNullRows = len(nullToDelete) / len(df.index) * 100
-    infoStr = "This dataset has " + str(len(nullToDelete)) + " rows (" + str("%0.2f" %(percentageNullRows)) + "%) that have at least " + str(threshold) + " null values out of " + str(len(df.columns))
-    st.info(infoStr)
-    st.subheader("Preview")
-    st.dataframe(dfToDelete.head(50))
-    if st.button("Drop these rows from the dataset", key=-1):
-        #df.drop(nullToDelete, axis=0, inplace=True)
-        #launch profile again
-        ()
+    if len(nullToDelete) > 0:
+        notNullList = [i for i in rangeList if i not in nullToDelete]
+        dfToDelete.drop(notNullList, axis=0, inplace=True)
+        percentageNullRows = len(nullToDelete) / len(df.index) * 100
+        infoStr = "This dataset has " + str(len(nullToDelete)) + " rows (" + str("%0.2f" %(percentageNullRows)) + "%) that have at least " + str(threshold) + " null values out of " + str(len(df.columns))
+        st.info(infoStr)
+        st.subheader("Preview")
+        st.dataframe(dfToDelete.head(50))
+        if st.button("Drop these rows from the dataset", key=-1):
+            st.session_state['toBeProfiled'] = True
+            df.drop(nullToDelete, axis=0, inplace=True)
+            successMessage = st.empty()
+            successString1 = "Dataset successfully updated! Please wait while the dataframe is profiled again.."
+            successMessage.success(successString1)
+            if st.session_state['toBeProfiled'] == True:
+                profileAgain(df)
+            st.session_state['toBeProfiled'] = False
+            successMessage.success("Profiling updated!")
+            time.sleep(2)
+            st.experimental_rerun()
+    else:
+        numm = colNum - threshold 
+        successString = "The dataset has all the rows with at least " + str(numm) + " not null values out of " + str(len(df.columns))
+        st.success(successString)
 with st.expander("Single Column Analysis' Legend"):
     st.write("Column type: is the format of the column")
     st.write("Null values is the number of null values within the column")

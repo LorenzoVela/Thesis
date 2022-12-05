@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
-from internal_functions import profileAgain
+from 
 
 m = st.markdown("""
 <style>
