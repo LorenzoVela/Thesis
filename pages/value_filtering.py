@@ -150,25 +150,35 @@ with st.expander("Manual", expanded=False):
             #st.write("Non unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[1])
             #st.write("Unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[0])
 
-with st.expander("Automatic", expanded=False):
-    st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
-    column = selectbox("Choose a columnn", dfCol)
-    delimiters = [",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
-    if column != None:
-        counter = 0
-        importantDelimiters = []
-        copyPreview = df[column].copy()
-        unique = df.duplicated(subset=column).value_counts()[0]
-        st.write("Unique rows: ", unique)
-        st.write("Duplicate rows", len(df.index) - unique)
-        #st.write("Unique rows: ", df.duplicated(subset=column).value_counts())
-        col1, col2, col3 = st.columns(3, gap="small")
-        with col1:
-            st.write('Old column')
-            st.write(df[column].head(30))
-        with col2:
-            if st.session_state['y'] == 0:
-                st.write("Edit menu")
+with st.expander("Automatic", expanded=True):
+    if st.session_state['y'] == 0:
+        st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
+        column = selectbox("Choose a column _", dfCol)
+        delimiters = [",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
+        if column != None:
+            counter = 0
+            importantDelimiters = []
+            copyPreview = df[column].copy()
+            unique = df.duplicated(subset=column).value_counts()[0]
+            col1_A, col2_A, col3_A = st.columns([0.1, 0.1, 1])
+            with col1_A:
+                st.write("Unique rows: ", unique)
+            with col2_A:
+                st.write("Duplicate rows", len(df.index) - unique)
+            #st.write("Unique rows: ", df.duplicated(subset=column).value_counts())
+            col1, col2, col3 = st.columns(3, gap="small")
+            with col1:
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")
+                st.write("")        
+                st.write('Old column')
+                st.write(df[column].head(30))
+            with col2:
+                actions = []
+                #st.write("Edit menu")
                 for item in delimiters:
                     counter = 0
                     for i in range(int(len(df.index)/10)):  #search for a delimiter in the first 10% of the dataset
@@ -177,7 +187,55 @@ with st.expander("Automatic", expanded=False):
                             counter += 1
                     if counter >= (len(df.index)/50):  #if in the first 10%, is present at least the 20% then we should propose it!
                         importantDelimiters.append(item)
-                st.write(importantDelimiters)
+                #st.write(importantDelimiters)
+                for item in importantDelimiters:
+                    stringToAppend = "Cut everything before " + item
+                    actions.append(stringToAppend)
+                    stringToAppend = "Cut everthing after " + item
+                    actions.append(stringToAppend)
+                action = selectbox("Choose an action", actions)
+                if action != None:
+                    for item in importantDelimiters:
+                        if item in action:
+                            if "before" in action:
+                                st.session_state['item'] = item
+                                st.session_state['action'] = "before"
+                                for i in range(len(df.index)):
+                                    if item in copyPreview[i]:
+                                        tempStringList = str(copyPreview[i]).split(item, 1)
+                                        if len(tempStringList) > 0:
+                                            copyPreview[i] = tempStringList[1]
+                            elif "after" in action:
+                                st.session_state['item'] = item
+                                st.session_state['action'] = "after"
+                                for i in range(len(df.index)):
+                                    if item in copyPreview[i]:
+                                        tempStringList = str(copyPreview[i]).split(item, 1)
+                                        if len(tempStringList) > 0:
+                                            copyPreview[i] = tempStringList[0]
+                                     
+                    st.write("New column")
+                    st.write(copyPreview.head(50))
+                    st.session_state['copyPreview'] = copyPreview
+                    if st.button("Save"):
+                        st.session_state['toBeProfiled'] = True
+                        st.session_state['y'] = 6
+                        st.experimental_rerun()
+    if st.session_state['y'] == 6:
+        copyPreview = st.session_state['copyPreview']
+        df[copyPreview.name] = copyPreview.values
+        successMessage = st.empty()
+        successString = "Column successfully updated! Please wait while the dataframe is profiled again.."
+        successMessage.success(successString)
+        if st.session_state['toBeProfiled'] == True:
+            profileAgain(df)
+        st.session_state['toBeProfiled'] = False
+        st.session_state['y'] = 1
+        successMessage.success("Profiling updated!")
+        newUnique = copyPreview.duplicated().value_counts()[0]
+        st.write("Unique rows of the new column: ", newUnique)
+        st.write("Duplicate rows of the new column: ", len(df.index) - newUnique)
+
                 
                 
 
