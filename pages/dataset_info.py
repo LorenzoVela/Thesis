@@ -16,7 +16,7 @@ from streamlit_extras.stoggle import stoggle
 from random import *
 import os
 import streamlit_nested_layout
-
+import webbrowser
 
 
 def profileAgain(df):
@@ -248,6 +248,11 @@ with colMain1:
                     #string = "The correlation between " + col + " and " + str(phik_df.columns[y]) + " is: " + "%0.2f" %(x) + "%"
                     #st.warning(string)
             ind += 1
+        
+    st.title("Automatic")
+    st.write("Click the button to perform automatically all the recommended actions, later you'll have the possibility to rollback action by action.")
+    if st.button("Go!"):
+        ()
 with colMain2:
     ()
 with colMain3:
@@ -261,6 +266,9 @@ with colMain4:
 #</style>""", unsafe_allow_html=True)
     st.write("Hello world")
     with st.expander("Rapid actions", expanded=False):
-        st.write("Hi")
-if st.button("Done!"):
+         st.markdown("<a href=#automatic>Link to the bottom of the page</a>", unsafe_allow_html=True)
+        #if st.button("Hi"):
+        #    webbrowser.open("http://localhost:8501/dataset_info#automatic", 0)
+st.markdown("---")
+if st.button("Homepage"):
         switch_page("Homepage")
