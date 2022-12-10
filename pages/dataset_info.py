@@ -55,9 +55,7 @@ report = st.session_state['report']
 #df['NIL']=df['NIL'].astype('category').cat.codes
 #df['Location']=df['Location'].astype('category').cat.codes
 
-#st.title("Dataset preview")
-#st.write(df.head())
-
+#if st.session_state['status'] == 0:
 st.title("Dataset information")
 st.subheader("Preview")
 st.write(df.head(20))
@@ -225,6 +223,7 @@ with colMain1:
     ind = 1
     st.subheader("List of the correlations that are higher than 60%")
     corrButton = name_counter + 1
+    correlationList = []
     for col in phik_df.columns:
         if ind < (len(phik_df.columns) - 1):
             for y in range(ind, len(phik_df.columns)):
@@ -234,6 +233,8 @@ with colMain1:
                     with col1:
                         #st.write(f"Column name is ")
                         st.write(f"The correlation between  **{col}** and **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
+                        if x > 85:
+                            correlationList.append([col, str(phik_df.columns[y]), x])
                     with col2:
                         if st.button("Manage", key=corrButton):
                             st.session_state['y'] = 0
@@ -248,11 +249,54 @@ with colMain1:
                     #string = "The correlation between " + col + " and " + str(phik_df.columns[y]) + " is: " + "%0.2f" %(x) + "%"
                     #st.warning(string)
             ind += 1
-        
+    correlationSum = {}
+    for y in range(0, len(phik_df.columns)):
+        x = 0
+        z = 0
+        for column in phik_df.columns:
+            #st.write(tttt)
+            #st.write(y)
+            z = float(phik_df[column][y])
+            x += z 
+        #st.write(f"{str(phik_df.columns[y])} , {x}")
+        correlationSum.update({str(phik_df.columns[y]) : x}) 
     st.title("Automatic")
     st.write("Click the button to perform automatically all the recommended actions, later you'll have the possibility to rollback action by action.")
     if st.button("Go!"):
-        ()
+        box = st.empty()
+        dfAutomatic = df.copy()
+        if len(nullToDelete) > 0:
+            stringDropAutomatic = "Dropping the " + str(len(nullToDelete)) + " rows (" + str("%0.2f" %(percentageNullRows)) + "%) that have at least " + str(threshold) + " null values out of " + str(len(df.columns))
+            stringDropRollback = "Rollback the drop of " + str(len(nullToDelete)) + " incomplete rows"
+            dfAutomatic.drop(nullToDelete, axis=0, inplace=True)
+            with st.spinner(text=stringDropAutomatic):
+                time.sleep(5)
+            st.success("Done!")
+            if st.checkbox(stringDropRollback, value=False) == True:
+                ()   
+        #st.write(correlationList)
+        for i in range(0, len(correlationList)):
+            #st.write(correlationList[i][0]) 
+            #st.write(correlationSum[correlationList[i][0]])
+            if correlationList[i][0] in dfAutomatic.columns and correlationList[i][1] in dfAutomatic.columns: 
+                if correlationSum[correlationList[i][0]] > correlationSum[correlationList[i][1]]:
+                    strDropAutomatic0 = "Dropping column " + correlationList[i][0] + "because of it's high correlation with column " + correlationList[i][1]
+                    strDropRollback0 = f"Rollback the drop of column **{correlationList[i][0]}**"
+                    dfAutomatic = dfAutomatic.drop(correlationList[i][0], axis=1)
+                    with st.spinner(text=strDropAutomatic0):
+                        time.sleep(2.5)
+                    st.success("Done!")
+                    if st.checkbox(strDropRollback0, value=False, key=correlationSum[correlationList[i][0]]) == True:
+                        ()
+                else:
+                    strDropAutomatic1 = "Dropping column " + correlationList[i][1] + " because of it's high correlation with column " + correlationList[i][0]
+                    strDropRollback1 = f"Rollback the drop of column **{correlationList[i][1]}**"
+                    dfAutomatic = dfAutomatic.drop(correlationList[i][1], axis=1)
+                    with st.spinner(text=strDropAutomatic1):
+                        time.sleep(2.5)
+                    st.success("Done!")
+                    if st.checkbox(strDropRollback1, value=False, key=correlationSum[correlationList[i][1]]) == True:
+                        ()
 with colMain2:
     ()
 with colMain3:
@@ -261,14 +305,16 @@ with colMain4:
     #st.markdown("""
     #<style>
     #div[data-testid="stHorizontalBlock"] > div:nth-of-type(4) {
-  #background-color: powderblue;
-   # }
+#background-color: powderblue;
+# }
 #</style>""", unsafe_allow_html=True)
     st.write("Hello world")
     with st.expander("Rapid actions", expanded=False):
-         st.markdown("<a href=#automatic>Link to the bottom of the page</a>", unsafe_allow_html=True)
+        st.markdown("<a href=#automatic>Link to the bottom of the page</a>", unsafe_allow_html=True)
         #if st.button("Hi"):
         #    webbrowser.open("http://localhost:8501/dataset_info#automatic", 0)
+#elif st.session_state['status'] == 1:
+#    st.write("Test")
 st.markdown("---")
 if st.button("Homepage"):
         switch_page("Homepage")

@@ -39,6 +39,7 @@ with col1_1:
         switch_page("profiling")
 with col1_2:
     if st.button("Dataset Info", key=2):
+        st.session_state['status'] = 0
         switch_page("dataset_info")
 with col1_3:
     if st.button("Values Management", key=3):
