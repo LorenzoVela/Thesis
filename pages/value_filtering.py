@@ -217,6 +217,9 @@ with st.expander("Automatic", expanded=True):
                     st.write("New column")
                     st.write(copyPreview.head(50))
                     st.session_state['copyPreview'] = copyPreview
+                    newUnique = copyPreview.duplicated().value_counts()[0]
+                    st.write("Unique rows of the new column: ", newUnique)
+                    st.write("Duplicate rows of the new column: ", len(df.index) - newUnique)
                     if st.button("Save"):
                         st.session_state['toBeProfiled'] = True
                         st.session_state['y'] = 6
