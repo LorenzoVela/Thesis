@@ -214,7 +214,7 @@ elif st.session_state['y'] == 1:
                 if dup > limit:
                     #st.write(f"The column  **{col1}** cointans the ", "%0.2f" %(percentageDup), "%" + " of the information present in the column " + f"**{col}**")
                     redundancyList.append([col, col1])
-    intk = 1000
+    intk = 200
     for item in redundancyList:
         strRemoveRedLoad = "Removing the redundancy of information between column " + item[0] + " and " + item[1]
         strRemoveRedConfirmed = f"Successfully removed all the redundancy of information between **{item[0]}** and **{item[1]}**! Now the information is present only in column **{item[0]}**."
@@ -261,7 +261,7 @@ elif st.session_state['y'] == 2:
     if st.session_state['toBeProfiled'] == True:
         successMessage.success(successString)
         profileAgain(df)
-    successMessage.success("Profiling updated! You can go to 'dataset info' in order to see the report of the new dataset or comeback to the homepage")
+    successMessage.success("Profiling updated! You can go to 'dataset info' in order to see the report of the new dataset or comeback to the homepage.")
     st.session_state['toBeProfiled'] = False
     st.markdown("---")
     col1, col2, col3 = st.columns([1,1,10], gap='small')

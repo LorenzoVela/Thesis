@@ -209,7 +209,7 @@ with st.expander("Automatic", expanded=True):
                                 st.session_state['item'] = item
                                 st.session_state['action'] = "after"
                                 for i in range(len(df.index)):
-                                    if item in copyPreview[i]:
+                                    if item in str(copyPreview[i]):
                                         tempStringList = str(copyPreview[i]).split(item, 1)
                                         if len(tempStringList) > 0:
                                             copyPreview[i] = tempStringList[0]
