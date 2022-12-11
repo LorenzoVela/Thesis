@@ -82,6 +82,8 @@ if len(nullToDelete) > 0:
     notNullList = [i for i in rangeList if i not in nullToDelete]
     percentageNullRows = len(nullToDelete) / len(df.index) * 100
 
+droppedList = []
+
 st.title("Automatic")
 st.subheader("Original dataset preview")
 st.dataframe(df.head(50))
@@ -100,6 +102,7 @@ elif st.session_state['y'] == 1:
         stringDropRollback = "Rollback the drop of " + str(len(nullToDelete)) + " incomplete rows"
         stringDropAutomaticConfirmed = f"Successfully dropped **{str(len(nullToDelete))}** **rows** (" + str("%0.2f" %(percentageNullRows)) + "%) that had at least " + str(threshold) + " null values out of " + str(len(df.columns))
         dfAutomatic.drop(nullToDelete, axis=0, inplace=True)
+        droppedList.append(["rows", nullToDelete])
         if st.session_state['once'] == True:
             with st.spinner(text=stringDropAutomaticLoad):
                 time.sleep(5)
@@ -107,44 +110,58 @@ elif st.session_state['y'] == 1:
         with st.expander("Why I did it?"):
             st.write("Incomplete rows are one of the principal sources of poor information. Even by applying the imputing technique within these rows would just be almost the same as incresing the dataset's size with non-real samples.")
             if st.checkbox(stringDropRollback, value=False) == True:
-                ()
+                droppedList = droppedList[ : -1]
         st.markdown("---")
     for i in range(0, len(correlationList)):
         if correlationList[i][0] in dfAutomatic.columns and correlationList[i][1] in dfAutomatic.columns: 
             if correlationSum[correlationList[i][0]] > correlationSum[correlationList[i][1]]:
-                strDropAutomaticLoad0 = "Dropping column " + correlationList[i][0] + "because of it's high correlation with column " + correlationList[i][1]
-                strDropAutomaticConfirmed0 = f"Successfully dropped column **{correlationList[i][0]}** because of its high correlation with column {correlationList[i][1]}"
-                strDropRollback0 = f"Rollback the drop of column **{correlationList[i][0]}**"
-                dfAutomatic = dfAutomatic.drop(correlationList[i][0], axis=1)
-                if st.session_state['once'] == True:
-                    with st.spinner(text=strDropAutomaticLoad0):
-                        time.sleep(2.5)
-                st.success(strDropAutomaticConfirmed0)
-                with st.expander("Why I did it?"):
-                    st.write("a")
-                    if st.checkbox(strDropRollback0, key=correlationSum[correlationList[i][0]]) == True:
-                        st.write("Ciao0")
+                x = 0
+                y = 1
             else:
-                strDropAutomaticLoad1 = "Dropping column " + correlationList[i][1] + " because of its high correlation with column " + correlationList[i][0]
-                strDropAutomaticConfirmed1 = f"Successfully dropped column **{correlationList[i][1]}** because of its high correlation with column {correlationList[i][0]}"
-                strDropRollback1 = f"Check to restore the column **{correlationList[i][1]}**"
-                dfAutomatic = dfAutomatic.drop(correlationList[i][1], axis=1)
-                if st.session_state['once'] == True:
-                    with st.spinner(text=strDropAutomaticLoad1):
-                        time.sleep(2.5)
-                st.success(strDropAutomaticConfirmed1)
-                with st.expander("Why I did it?"):
-                    st.write("a")
-                    if st.checkbox(strDropRollback1, key=correlationSum[correlationList[i][1]]) == True:
-                        st.write("Ciao1")
+                x = 1
+                y = 0
+            strDropAutomaticCorrLoad = "Dropping column " + correlationList[i][x] + "because of it's high correlation with column " + correlationList[i][y]
+            strDropAutomaticCorrConfirmed = f"Successfully dropped column **{correlationList[i][x]}** because of its high correlation with column {correlationList[i][y]}"
+            strDropCorrRollback = f"Rollback the drop of column **{correlationList[i][x]}**"
+            dfAutomatic = dfAutomatic.drop(correlationList[i][x], axis=1)
+            droppedList.append(["column", correlationList[i][x]])
+            if st.session_state['once'] == True:
+                with st.spinner(text=strDropAutomaticCorrLoad):
+                    time.sleep(2.5)
+            st.success(strDropAutomaticCorrConfirmed)
+            with st.expander("Why I did it?"):
+                st.write("When two columns has an high correlation between each other, this means that the 2 of them together have almost the same amount of information with respect to have only one of them. ANyway some columns can be useful, for example, to perform aggregate queries. If you think it's the case with this column you should better rollback this action and keep it!")
+                if st.checkbox(strDropCorrRollback, key=correlationSum[correlationList[i][x]]) == True:
+                    st.write("Ciao0")
+                    droppedList = droppedList[ : -1]
             #st.markdown("<p id=page-bottom>You have reached the bottom of this page!!</p>", unsafe_allow_html=True)
             st.markdown("---")
+    for col in dfAutomatic.columns:
+        k = randint(1,100)
+        if len(pd.unique(dfAutomatic[col])) == 1:
+            strDropAutomaticDistLoad = "Dropping column " + col + " because has the same value for all the rows, that is " + str(dfAutomatic[col][1])
+            strDropAutomaticDistConfirmed = f"Successfully dropped column **{col}** because has the same value for all the rows, that is {dfAutomatic[col][1]}"
+            strDropDistRollback = f"Rollback the drop of column **{col}**"
+            dfAutomatic = dfAutomatic.drop(col, axis=1)
+            droppedList.append(["column", col])
+            if st.session_state['once'] == True:
+                with st.spinner(text=strDropAutomaticDistLoad):
+                    time.sleep(2.5)
+            st.success(strDropAutomaticDistConfirmed)
+            with st.expander("Why I did it?"):
+                st.write("The fact that all the rows of the dataset had the same value for this attribute, doesn't bring any additional information with respect to removing the attribute. A dumb example could be: imagine a table of people with name, surname, date of birth...Does make sense to add a column called 'IsPerson'? No, because the answer would be the same for all the rows, we already know that every row here represent a person.")
+                if st.checkbox(strDropDistRollback, key=k) == True:
+                    st.write("Ciao0")
+                    droppedList = droppedList[ : -1]
+        st.markdown("---")
     st.write("Click to apply all the selected actions and rollbacks, you'll be shown with a preview of the new dataset. You'll still have a chance to comeback.")
     if st.button("Confirm"):
-        st.session_state['y'] = 2
-        st.experimental_rerun()
+        ()
+        #st.write(droppedList)
+        #st.session_state['y'] = 2
+        #st.experimental_rerun()
     st.session_state['once'] = False
-elif st.session_state['status'] == 2:
+elif st.session_state['y'] == 2:
     ()
 st.markdown("---")
 if st.button("Back To Homepage"):
