@@ -52,8 +52,9 @@ with col1_5:
     if st.button("Columns splitting", key=5):
         switch_page("column_splitting")
 with col1_6:
-    if(st.button("--", key=6)):
-        switch_page("reccomended_actions")
+    if(st.button("Automate profiling", key=6)):
+        st.session_state['y'] = 0
+        switch_page("automatic")
 with col1_7:
     st.button("--", key=7)
 with col1_8:

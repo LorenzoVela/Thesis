@@ -1,6 +1,5 @@
 import json
 import time
-
 import functional_dependencies
 import jellyfish
 import numpy as np
@@ -260,6 +259,7 @@ with colMain1:
             x += z 
         #st.write(f"{str(phik_df.columns[y])} , {x}")
         correlationSum.update({str(phik_df.columns[y]) : x}) 
+    '''
     st.title("Automatic")
     st.write("Click the button to perform automatically all the recommended actions, later you'll have the possibility to rollback action by action.")
     if st.button("Go!"):
@@ -297,6 +297,8 @@ with colMain1:
                     st.success("Done!")
                     if st.checkbox(strDropRollback1, value=False, key=correlationSum[correlationList[i][1]]) == True:
                         ()
+            '''
+            
 with colMain2:
     ()
 with colMain3:
