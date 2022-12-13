@@ -215,7 +215,9 @@ elif st.session_state['y'] == 1:
                     #st.write(f"The column  **{col1}** cointans the ", "%0.2f" %(percentageDup), "%" + " of the information present in the column " + f"**{col}**")
                     redundancyList.append([col, col1])
     intk = 200
+    flag = 0
     for item in redundancyList:
+        flag = 1
         strRemoveRedLoad = "Removing the redundancy of information between column " + item[0] + " and " + item[1]
         strRemoveRedConfirmed = f"Successfully removed all the redundancy of information between **{item[0]}** and **{item[1]}**! Now the information is present only in column **{item[0]}**."
         strRemoveRedRollback = f"Check to restore the information in column **{item[1]}**"
@@ -239,6 +241,11 @@ elif st.session_state['y'] == 1:
     st.write(dfAutomatic.head(50))
     st.write("Click to apply all the selected actions and rollbacks. This action will be permanent.")
     st.session_state['newdf'] = dfAutomatic.copy()
+    #if flag == 1:
+        #ask to drop some columns -> new state i think it's needed
+        #st.warning("After the preview, may have you noticed some columns that ")
+        #()
+    #else:        
     if st.button("Confirm"):
         #st.write(droppedList)
         st.session_state['y'] = 2
