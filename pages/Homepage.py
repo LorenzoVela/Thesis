@@ -54,6 +54,7 @@ with col1_5:
 with col1_6:
     if(st.button("Automate profiling", key=6)):
         st.session_state['y'] = 0
+        st.session_state['widget'] = 500
         switch_page("automatic")
 with col1_7:
     st.button("--", key=7)

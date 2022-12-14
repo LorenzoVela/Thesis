@@ -41,10 +41,32 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
+def update_multiselect_style():
+    st.markdown(
+        """
+        <style>
+            .stMultiSelect [data-baseweb="tag"] {
+                height: fit-content;
+            }
+            .stMultiSelect [data-baseweb="tag"] span[title] {
+                white-space: normal; max-width: 100%; overflow-wrap: anywhere;
+            }
+            span[data-baseweb="tag"] {
+                background-color: indianred !important;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+update_multiselect_style()
+
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 profile = st.session_state['profile']
 report = st.session_state['report']
+
+NoDupKey = st.session_state['widget']
 
 correlations = profile.description_set["correlations"]
 phik_df = correlations["phi_k"]
@@ -138,10 +160,11 @@ elif st.session_state['y'] == 1:
             st.success(strDropAutomaticCorrConfirmed)
             with st.expander("Why I did it?"):
                 st.write("When two columns has an high correlation between each other, this means that the 2 of them together have almost the same amount of information with respect to have only one of them. ANyway some columns can be useful, for example, to perform aggregate queries. If you think it's the case with this column you should better rollback this action and keep it!")
-                if st.checkbox(strDropCorrRollback, key=correlationSum[correlationList[i][x]]/2) == True:
+                if st.checkbox(strDropCorrRollback, key=NoDupKey) == True:
                     droppedList = droppedList[ : -1]
                 else:
                     dfAutomatic = dfAutomatic.drop(correlationList[i][x], axis=1)
+                NoDupKey = NoDupKey - 1
             #st.markdown("<p id=page-bottom>You have reached the bottom of this page!!</p>", unsafe_allow_html=True)
             st.markdown("---")
     for col in dfAutomatic.columns:
@@ -239,25 +262,45 @@ elif st.session_state['y'] == 1:
     st.markdown("---")
     st.subheader("New dataset real time preview")
     st.write(dfAutomatic.head(50))
-    st.write("Click to apply all the selected actions and rollbacks. This action will be permanent.")
     st.session_state['newdf'] = dfAutomatic.copy()
-    #if flag == 1:
-        #ask to drop some columns -> new state i think it's needed
-        #st.warning("After the preview, may have you noticed some columns that ")
-        #()
-    #else:        
-    if st.button("Confirm"):
+    st.info("If you see columns with poor information you've the chance to drop them. Remind that you're also applying *permanently* all the changes above.")
+    colSave, colSaveDrop, colIdle = st.columns([1,1,8], gap='small')
+    with colSave:
+        if st.button("Save"):
         #st.write(droppedList)
-        st.session_state['y'] = 2
-        st.session_state['toBeProfiled'] = True
-        st.experimental_rerun()
+            st.session_state['y'] = 2
+            st.session_state['toBeProfiled'] = True
+            st.experimental_rerun()
+    with colSaveDrop:
+        if st.button("Save and go to Drop"):
+            st.session_state['y'] = 3
+            st.experimental_rerun()
     st.session_state['once'] = False
     st.markdown("---")
     if st.button("Back To Homepage"):
         switch_page("homepage")
 
-
-
+elif st.session_state['y'] == 3:
+    dfAutomatic = st.session_state['newdf']
+    listCol = dfAutomatic.columns
+    listCol = listCol.insert(0, "Don't drop anything")
+    colToDrop = st.multiselect("Select one or more column to drop", listCol)
+    if (len(colToDrop) > 0) and (colToDrop.count("Don't drop anything") == 0):
+        #if st.button("Save"):
+        #    st.session_state['newdf'] = dfAutomatic.copy()
+        #    st.session_state['y'] = 2
+        #    st.session_state['toBeProfiled'] = True
+        #    st.experimental_rerun()
+    #else:
+        for col in colToDrop:
+            dfAutomatic = dfAutomatic.drop(col, axis=1)
+        st.subheader("Real time preview")
+        st.write(dfAutomatic.head(50))
+    if st.button("Save"):
+        st.session_state['newdf'] = dfAutomatic.copy()
+        st.session_state['y'] = 2
+        st.session_state['toBeProfiled'] = True
+        st.experimental_rerun()
 
 
 
@@ -267,7 +310,9 @@ elif st.session_state['y'] == 2:
     df = st.session_state['newdf']
     if st.session_state['toBeProfiled'] == True:
         successMessage.success(successString)
-        profileAgain(df)
+        #st.markdown('''(#automatic)''', unsafe_allow_html=True)
+        with st.spinner(" "):
+            profileAgain(df)
     successMessage.success("Profiling updated! You can go to 'dataset info' in order to see the report of the new dataset or comeback to the homepage.")
     st.session_state['toBeProfiled'] = False
     st.markdown("---")
