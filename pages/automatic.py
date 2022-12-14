@@ -309,6 +309,8 @@ elif st.session_state['y'] == 2:
     successString = "Please wait while the dataframe is profiled again with all the applied changes.."
     df = st.session_state['newdf']
     if st.session_state['toBeProfiled'] == True:
+        st.markdown(''' <a target="_self" href="automatic">
+                </a>''', unsafe_allow_html=True)
         successMessage.success(successString)
         #st.markdown('''(#automatic)''', unsafe_allow_html=True)
         with st.spinner(" "):
