@@ -57,9 +57,11 @@ with col1_6:
         st.session_state['widget'] = 500
         switch_page("automatic")
 with col1_7:
-    st.button("--", key=7)
+    if st.button("Show Entire dataset", key=7):
+        switch_page("visualize_dataset")
 with col1_8:
-    st.button("--", key=8)
+    if st.button("Download dataset", key=8):
+        switch_page("download_dataset")
 
     
 

@@ -35,6 +35,7 @@ def uploading_csv():
     #st.header("📁Upload your dataset:")
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
+        st.session_state['filename'] = str(uploaded_file.name)
         df = pd.read_excel(uploaded_file)
         st.session_state['df'] = df
         return df
@@ -65,7 +66,6 @@ if df is not None:
         message.success("File uploaded correctly! Please wait, profiling in progress..")
         profile_csv(df)
         message.success("Profiling completed!")
-        print("Test")
         st.session_state['x'] = 1
         for col in df.columns:
             dfCol.append(col)

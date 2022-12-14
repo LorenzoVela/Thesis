@@ -151,6 +151,7 @@ with st.expander("Manual", expanded=False):
             #st.write("Unique rows: ", df.duplicated(subset=copyPreview.name).value_counts()[0])
 
 with st.expander("Automatic", expanded=True):
+    st.write("")
     if st.session_state['y'] == 0:
         st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
         column = selectbox("Choose a column _", dfCol)
