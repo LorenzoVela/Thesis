@@ -78,13 +78,13 @@ def clean2 ():
     slate.empty()
     st.session_state['y'] = 2
     st.session_state['toBeProfiled'] = True
-    st.experimental_rerun()
+    #st.experimental_rerun()
 
 def clean3 ():
     slate.empty()
     st.session_state['y'] = 3
     st.session_state['toBeProfiled'] = True
-    st.experimental_rerun()
+    #st.experimental_rerun()
 
 
 NoDupKey = st.session_state['widget']
@@ -223,33 +223,36 @@ with body:
                 elif dfAutomatic[col].dtype == "float64":  #automatically fill with the average
                     x = 1
                 else:
+                    x = 2
                     st.error("Unrecognized col. type")
-                strFillAutomaticLoad = "Replacing all the " + str(nullNum) + " (" + "%0.2f" %(percentageNull) + "%) null values of column " + col
-                strFillAutomaticRollback = f"Check to rollback the replacement of all the null values in column **{col}**"
-                originalCol = dfAutomatic[col].copy(deep=False)
+                if x != 2:
+                    strFillAutomaticLoad = "Replacing all the " + str(nullNum) + " (" + "%0.2f" %(percentageNull) + "%) null values of column " + col
+                    strFillAutomaticRollback = f"Check to rollback the replacement of all the null values in column **{col}**"
+                    originalCol = dfAutomatic[col].copy(deep=False)
                 if x == 0:
                     #dfAutomatic[col].fillna(dfAutomatic[col].mode(), inplace=True)
                     strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the mode: {dfAutomatic[col].mode()}"
                     explanationWhy = "Unfortunately the column had a lot of null values. In order to influence less as possible the average value of this attribute, the mode is the value less invasive in terms of filling.  In the null values you'll have the possibility also to choose other values. If you want so, remind to rollback this change in order to still have the null values in your dataset."
-                else:
+                elif x == 1:
                     avgValue = "{:.2f}".format(report["variables"][col]["mean"])
                     #dfAutomatic[col].fillna(avgValue, inplace=True)
                     strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the average value: {avgValue}"
                     explanationWhy = "Unfortunately the column had a lot of null values. In order to influence less as possible the average value of this attribute, the mean is one of the best solution for the replacement. In the null values page you'll have the possibility also to choose other values. If you want so, remind to rollback this change in order to still have the null values in your dataset."
-                droppedList.append(["nullReplaced", col, dfAutomatic[col]])
-                if st.session_state['once'] == True:
-                    with st.spinner(text=strFillAutomaticLoad):
-                        time.sleep(0.5)
-                st.success(strFillAutomaticConfirmed)
-                with st.expander("Why I did it?"):
-                    st.write(explanationWhy)
-                    if st.checkbox(strFillAutomaticRollback, key=nullNum) == True:
-                        droppedList = droppedList[ : -1]
-                    else:
-                        if x==0:
-                            dfAutomatic[col].fillna(dfAutomatic[col].mode(), inplace=True)
+                if x == 0 or x == 1:
+                    droppedList.append(["nullReplaced", col, dfAutomatic[col]])
+                    if st.session_state['once'] == True:
+                        with st.spinner(text=strFillAutomaticLoad):
+                            time.sleep(0.5)
+                    st.success(strFillAutomaticConfirmed)
+                    with st.expander("Why I did it?"):
+                        st.write(explanationWhy)
+                        if st.checkbox(strFillAutomaticRollback, key=nullNum) == True:
+                            droppedList = droppedList[ : -1]
                         else:
-                            dfAutomatic[col].fillna(avgValue, inplace=True)
+                            if x == 0:
+                                dfAutomatic[col].fillna(dfAutomatic[col].mode(), inplace=True)
+                            elif x == 1:
+                                dfAutomatic[col].fillna(avgValue, inplace=True)
                 st.markdown("---")
 
         #Checking and removing redundancies in the data, also filter all the values from delimiters

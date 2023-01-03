@@ -63,6 +63,14 @@ with col1_8:
     if st.button("Download dataset", key=8):
         switch_page("download_dataset")
 
+st.write(" ")
+
+col2_1, col2_2, col2_3, col2_4, col2_5, col2_6, col2_7, col2_8 = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
+with col2_1:
+     if st.button("Suggested actions", key=9):
+        st.session_state['y'] = 0
+        switch_page("suggested_actions") 
+
     
 
 

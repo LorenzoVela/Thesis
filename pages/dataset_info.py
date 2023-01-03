@@ -57,7 +57,7 @@ report = st.session_state['report']
 #if st.session_state['status'] == 0:
 st.title("Dataset information")
 st.subheader("Preview")
-st.write(df.head(20))
+st.write(df.head(50))
 with st.expander("Incomplete Rows", expanded=False):
     colNum = len(df.columns)
     threshold = round(0.4 * colNum) #if a value has 40% of the attribute = NaN it's available for dropping
