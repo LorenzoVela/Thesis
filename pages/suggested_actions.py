@@ -57,6 +57,7 @@ body2 = slate2.container()
 
 def clean1 ():
     slate1.empty()
+    st.session_state['Once'] = True
     st.session_state['y'] = 1
     #st.session_state['2'] = True
     #st.session_state['toBeProfiled'] = True
@@ -139,9 +140,9 @@ with body1:
                         choice = st.radio("Select below", ["None", correlationList[i][0], correlationList[i][1]], index=0)
                         if choice != "None":    
                             droppedList.append(["column", choice])
+                        st.markdown("---")
             else:
                 st.success("All the columns have a correlation parameters between them very low. This means they're all useful and descriptive for the dataset!")
-            st.markdown("---")
 
         for col in df.columns:
             if len(pd.unique(df[col])) == 1:
@@ -165,23 +166,58 @@ with body1:
                         choiceObj = st.radio("Select below", ["Don't replace null values", "Replace the null values with the mode"])
                         if choiceObj != "Don't replace null values":
                             droppedList.append(["nullReplacedObj", col])
+                        st.markdown("---")
                     elif df[col].dtype == "float64":
                         avgValue = "{:.2f}".format(report["variables"][col]["mean"])
                         strNumFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's a numeric column, you're suggested to replace them with its mean value, that is '{avgValue}'."
                         st.info(strNumFill)
-                        choiceNum = st.radio("Select below", ["Don't replace null values", "Replace the null values with the mean"])
+                        choiceNum = st.radio("Select below", ["Don't replace null values", "Replace null values with the mean"])
                         if choiceObj != "Don't replace null values":
                             droppedList.append(["nullReplacedNum", col])
+                        st.markdown("---")
                     else:
                         ()
                         #st.error("Unrecognized col. type") 
-                st.markdown("---")
+        if st.session_state['Once'] == True:
+            with st.spinner("Checking redundancies in the data"):
+                length = round(len(df.index)/10)
+                limit = round(length * 60 / 100)
+                st.session_state['redundancyList'] = []
+                for col in df.columns:
+                    for col1 in df.columns:
+                        if col != col1:
+                            dup = 0
+                            for i in range(length):
+                                if str(df[col][i]) in str(df[col1][i]):  #col1/arg1 ubicazione, col/arg descrizioneVia
+                                    dup += 1
+                            if dup > limit:
+                                st.session_state['redundancyList'].append([col, col1])
+            st.session_state['Once'] = False
+        redundancyList = st.session_state['redundancyList']
+        if len(redundancyList) > 0:
+            with st.expander("Redundancies in the data", expanded=True):
+                for item in redundancyList:
+                    string = f"Some redundancy of information have been detected between column **{item[0]}** and **{item[1]}**, here a small preview of the two columns"
+                    st.info(string)
+                    st.write(df[[item[0], item[1]]].head(20))
+                    choiceRed = st.radio("Select below", ["None", f"Drop column {item[0]}", f"Drop column {item[1]}", f"Remove only the duplicate information from column {item[1]}"], index=0)
+                    if choiceRed != None:
+                        if choiceRed == f"Drop column {item[0]}":
+                            droppedList.append(["column", item[0]])
+                        elif choiceRed == f"Drop column {item[1]}":
+                            droppedList.append(["column", item[1]])
+                        elif choiceRed == f"Remove only the duplicate information from column {item[1]}":
+                            droppedList.append(["Redundancy", [item[0], item[1]]]) #should remove item[1][0] from item[1][1]
+                    st.markdown("---")
+
+        else:
+            st.success("All the column have an high indepence between each other")
 
 
 
         st.session_state['droppedList'] = droppedList #update the array before doing the action    
         if len(droppedList) > 0:
-            st.warning("After you apply the changes selected, a preview of the new dataset will be displayed")
+            st.warning("After you apply the changes selected, a preview of the new dataset will be displayed with a recap of the actions performed")
             if st.button("Go!", on_click=clean1):
                 ()
         st.markdown("---")
@@ -193,21 +229,49 @@ with body2:
         #here we should perform all the actions in "droppedList" and profile again the dataset if the user wants
         
         dfPreview = df.copy()
-        successMessage = st.empty()
-        successString = "Please wait while the dataframe is profiled again with all the applied changes.."
-        for item in st.session_state['droppedList']:
-            if item[0] == "rows":
-                dfPreview = dfPreview.drop(item[1], axis=0, inplace=True)
-            elif item[0] == "column":
-                if item[1] in dfPreview.columns:
-                    dfPreview = dfPreview.drop(item[1], axis=1)
+        if st.session_state['Once'] == True:
+            with st.spinner("Applying the required changes"):
+                for item in st.session_state['droppedList']:
+                    if item[0] == "rows":
+                        dfPreview.drop(item[1], axis=0, inplace=True)
+                    elif item[0] == "column":
+                        #if str(item[1]) in dfPreview:
+                        dfPreview = dfPreview.drop(item[1], axis=1)
 
-            elif item[0] == "nullReplacedNum":
-                ()
-            elif item[0] == "nullReplacedObj":
-                ()
+                    elif item[0] == "nullReplacedNum":
+                        col = item[1]
+                        avgValue = "{:.2f}".format(report["variables"][col]["mean"])
+                        dfPreview[col].fillna(avgValue, inplace=True)
+                    elif item[0] == "nullReplacedObj":
+                        col = item[1]
+                        dfPreview[col].fillna(dfPreview[col].mode(), inplace=True)
+                    elif item[0] == "Redundancy":
+                        for i in range(len(dfPreview.index)):
+                                if str(dfPreview[item[1][0]][i]) in str(dfPreview[item[1][1]][i]):
+                                    dfPreview[item[1][1]][i] = str(dfPreview[item[1][1]][i]).replace(str(dfPreview[item[1][0]][i]), "")
+            st.session_state['Once'] = False
 
 
+
+
+        with st.expander("List of the actions performed", expanded=False):
+            for item in st.session_state['droppedList']:
+                if item[0] == "rows":
+                    string = f"-  Dropped {len(item[1])} rows because they had more than 40% of null attributes."
+                    st.write(string)
+                elif item[0] == "column":
+                    string = f"-  Dropped column **{item[1]}**."
+                    st.write(string)
+                elif item[0] == "nullReplacedNum":
+                    avgValue = "{:.2f}".format(report["variables"][item[1]]["mean"])
+                    string = f"-  Replaced all the null values present in column **{item[1]}** with its mean value ({avgValue})."
+                    st.write(string)
+                elif item[0] == "nullReplacedObj": 
+                    string = f"-  Replaced all the null values present in column **{item[1]}** with its mode value ({dfPreview[item[1]].mode()})."
+                    st.write(string)
+                elif item[0] == "Redundancy":
+                    string = f"-  Removed from column **{item[1][1]}** the information that was present also in column **{item[1][0]}**"
+                    st.write(string)
         st.write(dfPreview.head(50))
         st.warning("This action will be permanent")
         col1, col2, col3 = st.columns([1,1,10], gap='small')
@@ -220,6 +284,7 @@ with body2:
                 #st.experimental_rerun()
         with col2:
             if st.button("Back"):
+                st.session_state['Once'] = True
                 st.session_state['y'] = 0
                 #st.session_state['toBeProfiled'] = True     
                 st.experimental_rerun()

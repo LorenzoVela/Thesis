@@ -255,7 +255,7 @@ with body:
                                 dfAutomatic[col].fillna(avgValue, inplace=True)
                 st.markdown("---")
 
-        #Checking and removing redundancies in the data, also filter all the values from delimiters
+        #Checking and removing redundancies in the data
         length = round(len(dfAutomatic.index)/10)
         limit = round(length * 60 / 100)
         redundancyList = []
