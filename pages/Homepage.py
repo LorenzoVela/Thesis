@@ -71,6 +71,11 @@ with col2_1:
         st.session_state['Once'] = True
         st.session_state['y'] = 0
         switch_page("suggested_actions") 
+with col2_2:
+     if st.button("Column renaming", key=10):
+        st.session_state['y'] = 0
+        switch_page("column_renaming") 
+
 
     
 

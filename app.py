@@ -22,7 +22,7 @@ if start_button:
 #from pages import prova, prova2
 
 # Create an instance of the app 
-#app = MultiPage()
+#app = MultiPage() 
 
 
 #################
