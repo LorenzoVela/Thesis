@@ -25,6 +25,7 @@ def update_selectbox_style():
         unsafe_allow_html=True,
     )
 
+
 def update_multiselect_style():
     st.markdown(
         """
@@ -46,6 +47,15 @@ def update_multiselect_style():
 update_multiselect_style()
 update_selectbox_style()
 
+st.markdown(
+    """ <style>
+            div[role="radiogroup"] >  :first-child{
+                display: none !important;
+            }
+        </style>
+        """,
+    unsafe_allow_html=True
+)
 
 
 m = st.markdown("""
@@ -73,8 +83,13 @@ def profileAgain(df):
     st.session_state['dfCol'] = newColumns
 
 def clean1 ():
-    slate.empty()
+    slate1.empty()
     st.session_state['y'] = 1
+
+def clean2 ():
+    slate2.empty()
+    st.session_state['y'] = 2
+    st.session_state['toBeProfiled'] = True
 
 profile = st.session_state['profile']
 report = st.session_state['report']
@@ -82,17 +97,26 @@ df = st.session_state['df']
 
 
 st.title("Column splitting")
-slate = st.empty()
-body = slate.container()
-with body:
+slate1 = st.empty()
+body1 = slate1.container()
+
+slate2 = st.empty()
+body2 = slate2.container()
+
+with body1:
     if st.session_state['y'] == 0:  #choose the values to replace
         st.subheader("Dataset preview")
         st.write(df.head(200))
         columns = list(df.columns)
+        columnsFiltered = []
         for col in columns:
-            if df[col].dtype == "float64":
-                columns.remove(col)
-        column = st.selectbox("Select the column to be splitted", columns)
+            for i in range(0,10):
+                if df[col].dtype == "float64" or df[col].dtype == "Int64":
+                    break
+                elif " " in df[col][i] :
+                    columnsFiltered.append(col)
+                    break
+        column = st.selectbox("Select the column to be splitted", columnsFiltered)
         delimiters = [" ", ",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
         if column != None:
             colPreview = df[column].copy()
@@ -139,7 +163,7 @@ with body:
                     oneLinePreview = pd.DataFrame(data, columns=['First column', 'Second column'])
                     st.write(oneLinePreview)
                     firstColumn = st.text_input("Insert the name of the new 'First column'")
-                    secondColumn = st.text_input("Insert the name of the new 'Second column'")
+                    secondColumn = st.text_input("Insert the name of the new 'Second column' and press Enter")
                     columnsLower = [element.lower() for element in columns]
                     firstColumnLower = firstColumn.lower()
                     secondColumnLower = secondColumn.lower()
@@ -151,26 +175,87 @@ with body:
                         st.error("One of the two columns is already present in the dataset")
                     else:
                         #st.write("ok")
-                        st.warning("The splitting will be applying where possible. You'll be shown with a preview of the new dataset")
-                        st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter]
-                        if st.button("Go!", on_click=clean1):
-                            ()
+                        if num < len(df.index):
+                            str1 = "Content in " + firstColumn +" and null in " + secondColumn
+                            str2 = "Content in " + secondColumn +" and null in " + firstColumn 
+                            choice = st.radio("With the rows that do not contain the delimiter what you'd like to do?",["None", str1, str2])
+                            if choice == str1:
+                                st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter, 1]
+                                if st.button("Go!", on_click=clean1):
+                                    ()
+                            elif choice == str2:
+                                st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter, 2]
+                                if st.button("Go!", on_click=clean1):
+                                    ()
+                        else:
+                            st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter, 1]
+                            if st.button("Go!", on_click=clean1):
+                                ()
+                            
         st.markdown("---")
         if st.button("Homepage"):
             switch_page("Homepage")
-if st.session_state['y'] == 1:
-    dfPreview = st.session_state['df'].copy()
-    item = st.session_state['itemToPass']
-    dfPreview[[item[1], item[2]]] = str(dfPreview[item[0]]).split(item[3], 1)
-    st.write(dfPreview.head(50))
-    #st.write(itemToWork)
+with body2:
+    if st.session_state['y'] == 1:
+        dfPreview = st.session_state['df'].copy()
+        item = st.session_state['itemToPass']
+        #st.write(item)
+        if item[3] == "First space appearance":
+            item[3] = " "
+        columns = list(dfPreview.columns)
+        colIndex = columns.index(item[0])
+        valFirst = []
+        valSecond = []
+        for i in range (0, len(df.index)):
+            if item[3] in str(dfPreview[item[0]][i]):
+                splitted = str(dfPreview[item[0]][i]).split(item[3], 1)
+                valFirst.append(splitted[0])
+                valSecond.append(splitted[1])
+            elif item[4] == 1: #copy in the first col and null in the second column
+                valFirst.append(dfPreview[item[0]][i])
+                valSecond.append("nan")
+            elif item[4] == 2: #copy in the second column
+                valFirst.append("nan")
+                valSecond.append(dfPreview[item[0]][i])
+        #ser = pd.Series(list)
+        dfPreview.insert(loc=colIndex, column = str(item[1]), value=valFirst)
+        dfPreview.insert(loc=(colIndex+1), column = str(item[2]), value=valSecond)
+        dfPreview.drop(item[0], inplace=True, axis=1)
+        st.write(dfPreview.head(100))
+        st.warning("This action will be permanent")
+        col1, col2, col3 = st.columns([1,1,10], gap='small')
+        st.session_state['newdf'] = dfPreview.copy()
+        with col1:
+            if st.button("Save!", on_click=clean2):
+                ()
+                #st.session_state['y'] = 2
+                #st.session_state['toBeProfiled'] = True
+                #st.experimental_rerun()
+        with col2:
+            if st.button("Back"):
+                st.session_state['Once'] = True
+                st.session_state['y'] = 0
+                #st.session_state['toBeProfiled'] = True     
+                st.experimental_rerun()
+        st.markdown("---")
+        if st.button("Homepage"):
+            switch_page("Homepage")
+
+if st.session_state['y'] == 2:
+    if st.session_state['toBeProfiled'] == True:
+        df = st.session_state['newdf']
+        successMessage = st.empty()
+        successString = "Please wait while the dataframe is profiled again with all the applied changes.."
+        successMessage.success(successString)
+        with st.spinner(" "):
+            profileAgain(df)
+        successMessage.success("Profiling updated!")
+        st.session_state['toBeProfiled'] = False
+        st.subheader("New dataset")
+        st.write(df.head(50))
     st.markdown("---")
     if st.button("Homepage"):
         switch_page("Homepage")
-
-
-
-
 
 
 

@@ -37,7 +37,6 @@ def uploading_csv():
     if uploaded_file is not None:
         st.session_state['filename'] = str(uploaded_file.name)
         df = pd.read_excel(uploaded_file)
-        st.session_state['df'] = df
         return df
     else:
         ()
@@ -63,6 +62,10 @@ message = st.empty()
 dfCol = []
 if df is not None:
     if x == 0:
+        for col in df.columns:
+            if df[col].dtype == "float64":
+                df[col] = df[col].astype("Int64")
+        st.session_state['df'] = df
         message.success("File uploaded correctly! Please wait, profiling in progress..")
         profile_csv(df)
         message.success("Profiling completed!")

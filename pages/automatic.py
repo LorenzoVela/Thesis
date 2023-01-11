@@ -220,7 +220,7 @@ with body:
             if percentageNull > 25:
                 if dfAutomatic[col].dtype == "object":  #automatically fill with the mode
                     x = 0
-                elif dfAutomatic[col].dtype == "float64":  #automatically fill with the average
+                elif dfAutomatic[col].dtype == "float64" or dfAutomatic[col].dtype == "Int64":  #automatically fill with the average
                     x = 1
                 else:
                     x = 2

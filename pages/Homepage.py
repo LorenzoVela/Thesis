@@ -49,8 +49,8 @@ with col1_4:
     if st.button("Null values handling", key=4):
         switch_page("null_values_selection")
 with col1_5:
-    if st.button("Columns splitting", key=5):
-        switch_page("column_splitting")
+    st.button("Column Drop", key=5)
+        #switch_page("")
 with col1_6:
     if(st.button("Automate profiling", key=6)):
         st.session_state['y'] = 0

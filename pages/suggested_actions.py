@@ -167,7 +167,7 @@ with body1:
                         if choiceObj != "Don't replace null values":
                             droppedList.append(["nullReplacedObj", col])
                         st.markdown("---")
-                    elif df[col].dtype == "float64":
+                    elif df[col].dtype == "float64" or df[col].dtype == "Int64":
                         avgValue = "{:.2f}".format(report["variables"][col]["mean"])
                         strNumFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's a numeric column, you're suggested to replace them with its mean value, that is '{avgValue}'."
                         st.info(strNumFill)

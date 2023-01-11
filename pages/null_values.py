@@ -109,7 +109,7 @@ with st.expander("", expanded=True):
             elif fillingOpObj == "Custom Value":
                 st.session_state['y'] = 7
                 st.experimental_rerun()
-        elif df[dfCol.name].dtype == "float64":
+        elif df[dfCol.name].dtype == "float64" or df[dfCol.name].dtype == "Int64":
             fillingOpNum = st.radio(f"Filling options for **{dfCol.name}** :",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
             if fillingOpNum == "Min":
                 st.session_state['y'] = 13
