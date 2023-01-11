@@ -74,7 +74,11 @@ with col2_1:
 with col2_2:
      if st.button("Column renaming", key=10):
         st.session_state['y'] = 0
-        switch_page("column_renaming") 
+        switch_page("column_renaming")
+with col2_3:
+     if st.button("Column splitting", key=11):
+        st.session_state['y'] = 0
+        switch_page("column_splitting")  
 
 
     

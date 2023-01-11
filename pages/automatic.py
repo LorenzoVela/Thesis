@@ -71,8 +71,8 @@ profile = st.session_state['profile']
 report = st.session_state['report']
 
 st.title("Automatic")
-slate = st.empty() ##>
-body = slate.container() ##>
+slate = st.empty()
+body = slate.container()
 
 def clean2 ():
     slate.empty()
