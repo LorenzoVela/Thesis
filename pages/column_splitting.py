@@ -5,6 +5,7 @@ import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
 from streamlit_extras.no_default_selectbox import selectbox
+from streamlit_extras.st_keyup import st_keyup
 import os
 from pandas_profiling import *
 import json
@@ -71,6 +72,9 @@ def profileAgain(df):
         newColumns.append(item)
     st.session_state['dfCol'] = newColumns
 
+def clean1 ():
+    slate.empty()
+    st.session_state['y'] = 1
 
 profile = st.session_state['profile']
 report = st.session_state['report']
@@ -84,7 +88,6 @@ with body:
     if st.session_state['y'] == 0:  #choose the values to replace
         st.subheader("Dataset preview")
         st.write(df.head(200))
-        dfPreview = df.copy()
         columns = list(df.columns)
         for col in columns:
             if df[col].dtype == "float64":
@@ -141,22 +144,33 @@ with body:
                     firstColumnLower = firstColumn.lower()
                     secondColumnLower = secondColumn.lower()
                     if firstColumn == "" or secondColumn == "":
-                        st.write("null")
+                        ()
                     elif firstColumnLower == secondColumnLower:
-                        st.write("name not distinct")
+                        st.error("The columns name should be distinct")
                     elif firstColumnLower in columnsLower or secondColumnLower in columnsLower:
-                        st.write("contained in the dataset")
+                        st.error("One of the two columns is already present in the dataset")
                     else:
                         #st.write("ok")
                         st.warning("The splitting will be applying where possible. You'll be shown with a preview of the new dataset")
+                        st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter]
                         if st.button("Go!", on_click=clean1):
                             ()
-
-
-
-
-
-st.markdown("---")
-if st.button("Done!"):
+        st.markdown("---")
+        if st.button("Homepage"):
+            switch_page("Homepage")
+if st.session_state['y'] == 1:
+    dfPreview = st.session_state['df'].copy()
+    item = st.session_state['itemToPass']
+    dfPreview[[item[1], item[2]]] = str(dfPreview[item[0]]).split(item[3], 1)
+    st.write(dfPreview.head(50))
+    #st.write(itemToWork)
+    st.markdown("---")
+    if st.button("Homepage"):
         switch_page("Homepage")
+
+
+
+
+
+
 
