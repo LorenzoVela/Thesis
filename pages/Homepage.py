@@ -79,6 +79,10 @@ with col2_3:
      if st.button("Column splitting", key=11):
         st.session_state['y'] = 0
         switch_page("column_splitting")  
+with col2_4:
+    if st.button("Column by column", key=12):
+        st.session_state['counter'] = 0
+        switch_page("col_by_col")
 
 
     
