@@ -113,8 +113,17 @@ with col2:
                     if percentageUnique > 90:
                         st.warning("This attribute is a possible candidate for primary key!")
             with inner_inner_cols[2]:
-                st.subheader("Correlation")
-                st.write(phik_df[col])
+                #st.write(phik_df[col])
+                if col in phik_df.columns:
+                    st.subheader("Correlation")
+                    for y in range(0, len(phik_df.index)):
+                        if phik_df.columns[y] != col:
+                            x = float(phik_df[col][y])*100
+                            if x > 60:
+                                #st.write(f"Correlation between  **{col}** and **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
+                                st.write(f"Correlation with **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
+                                st.write("")
+                    
 
 with col3:
     if count < (len(df.columns) - 1):
