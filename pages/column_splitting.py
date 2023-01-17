@@ -94,7 +94,7 @@ def clean2 ():
 profile = st.session_state['profile']
 report = st.session_state['report']
 df = st.session_state['df']
-
+avoid = st.session_state['avoid'] #0 from Homepage, 1 from col_by_col
 
 st.title("Column splitting")
 slate1 = st.empty()
@@ -105,18 +105,24 @@ body2 = slate2.container()
 
 with body1:
     if st.session_state['y'] == 0:  #choose the values to replace
-        st.subheader("Dataset preview")
-        st.write(df.head(200))
-        columns = list(df.columns)
-        columnsFiltered = []
-        for col in columns:
-            for i in range(0,10):
-                if df[col].dtype == "float64" or df[col].dtype == "Int64":
-                    break
-                elif " " in df[col][i] :
-                    columnsFiltered.append(col)
-                    break
-        column = st.selectbox("Select the column to be splitted", columnsFiltered)
+        if avoid == 0:
+            st.subheader("Dataset preview")
+            st.write(df.head(200))
+            columns = list(df.columns)
+            columnsFiltered = []
+            for col in columns:
+                for i in range(0,10):
+                    if df[col].dtype == "float64" or df[col].dtype == "Int64":
+                        break
+                    elif " " in df[col][i] :
+                        columnsFiltered.append(col)
+                        break
+            column = st.selectbox("Select the column to be splitted", columnsFiltered)
+        elif avoid == 1:
+            st.markdown("---")
+            column = st.session_state['colName']
+            string = f"Splitting column **{column}**"
+            st.write(string)
         delimiters = [" ", ",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
         if column != None:
             colPreview = df[column].copy()
@@ -193,8 +199,12 @@ with body1:
                                 ()
                             
         st.markdown("---")
-        if st.button("Homepage"):
-            switch_page("Homepage")
+        if avoid == 0:
+            if st.button("Back to Homepage"):
+                switch_page("Homepage")
+        elif avoid == 1:
+            if st.button("Back to Column by column"):
+                switch_page("col_by_col")
 with body2:
     if st.session_state['y'] == 1:
         dfPreview = st.session_state['df'].copy()
@@ -238,8 +248,12 @@ with body2:
                 #st.session_state['toBeProfiled'] = True     
                 st.experimental_rerun()
         st.markdown("---")
-        if st.button("Homepage"):
-            switch_page("Homepage")
+        if avoid == 0:
+            if st.button("Homepage"):
+                switch_page("Homepage")
+        elif avoid == 1:
+            if st.button("Column by column"):
+                switch_page("col_by_col")
 
 if st.session_state['y'] == 2:
     if st.session_state['toBeProfiled'] == True:
@@ -254,8 +268,12 @@ if st.session_state['y'] == 2:
         st.subheader("New dataset")
         st.write(df.head(50))
     st.markdown("---")
-    if st.button("Homepage"):
-        switch_page("Homepage")
+    if avoid == 0:
+            if st.button("Homepage"):
+                switch_page("Homepage")
+    elif avoid == 1:
+        if st.button("Column by column"):
+            switch_page("col_by_col")
 
 
 

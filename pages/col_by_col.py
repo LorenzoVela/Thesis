@@ -80,6 +80,7 @@ with col1:
 with col2:
     flagDistinct = False
     flagNull = False
+    flagSplit = False
     with st.expander("Column", expanded=True):
         col = df.columns[count]
         inner_cols = st.columns([2,0.3,5])
@@ -89,6 +90,12 @@ with col2:
             inner_inner_cols = st.columns([1,0.1,1])
             with inner_inner_cols[0]:
                 st.subheader("Statistics")
+                for i in range(0,10):
+                    if df[col].dtype == "float64" or df[col].dtype == "Int64":
+                        break
+                    elif " " in str(df[col][i]) :
+                        flagSplit = True
+                        break
                 nullNum = df[col].isna().sum()
                 distinctNum = len(pd.unique(df[col]))
                 testCount = df[col].drop_duplicates().size
@@ -168,6 +175,14 @@ if flagDistinct == True:
             st.session_state['y'] = 0
             st.session_state['arg'] = df.iloc[:, count].copy(deep=False)
             switch_page("category")
+if flagSplit == True:
+    x += 1
+    with finalCols[x]:
+        if st.button("Split column"):
+            st.session_state['colName'] = col
+            st.session_state['y'] = 0
+            st.session_state['avoid'] = 1
+            switch_page("column_splitting")
 if len(corrList) > 0:
     for item in corrList:
         x += 1
