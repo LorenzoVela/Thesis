@@ -8,9 +8,21 @@ from streamlit_extras.switch_page_button import switch_page
 import os
 from pandas_profiling import *
 import json
-from internal_functions import profileAgain
 
-
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
 
 
 m = st.markdown("""
@@ -41,6 +53,9 @@ st.markdown(
         """,
     unsafe_allow_html=True
 )
+
+
+parentPage = st.session_state['from']   #0 dataset info, 1 cl by col
 
 dfCol = st.session_state['arg'] #dfCol is a series here
 dfCol1 = st.session_state['arg1']
@@ -117,19 +132,18 @@ if st.session_state['y'] == 0:
     with tab4: #none
         ()
     st.markdown("""---""")
-    if st.button("Back to Dataset Info!"):
-        switch_page("dataset_info")
-
+    if parentPage == 0:
+        if st.button("Back to Dataset Info!"):
+            switch_page("dataset_info")
+    elif parentPage == 1:
+        if st.button("Back to column by columns"):
+            switch_page("col_by_col")
 elif st.session_state['y'] == 1:
-    st.success("Redirecting to dataset_info..")
-    time.sleep(2.5)
-
-    #update the dataframe
-    #do the profile again
-    #remove the old report
-    #load the new one
-
-    switch_page("dataset_info")
-
+    if parentPage == 0:    
+        st.success("Redirecting to dataset_info..")
+        switch_page("dataset_info")
+    elif parentPage == 1:
+        st.success("Redirecting to column by column..")
+        switch_page("col_by_col")
 else:
     ()

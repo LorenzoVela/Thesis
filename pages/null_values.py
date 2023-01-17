@@ -401,6 +401,9 @@ if parentPage == 0:
 elif parentPage == 1:
     if st.button("Back to Homepage"):
         switch_page("Homepage")
+elif parentPage == 2:
+    if st.button("Back to column by columns"):
+        switch_page("col_by_col")
 else:
     ()
 

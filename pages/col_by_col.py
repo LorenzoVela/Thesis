@@ -16,6 +16,7 @@ from random import *
 import os
 import streamlit_nested_layout
 import webbrowser
+import streamlit.components.v1 as components
 
 def profileAgain(df):
     if os.path.exists("newProfile.json"):
@@ -31,7 +32,6 @@ def profileAgain(df):
     for item in df.columns:
         newColumns.append(item)
     st.session_state['dfCol'] = newColumns
-
 
 
 
@@ -78,11 +78,13 @@ with col1:
                 st.experimental_rerun()
 
 with col2:
+    flagDistinct = False
+    flagNull = False
     with st.expander("Column", expanded=True):
         col = df.columns[count]
         inner_cols = st.columns([2,0.3,5])
         with inner_cols[0]:
-            st.dataframe(df.iloc[:, count],width=100,height=300)
+            st.dataframe(df.iloc[:, count], use_container_width=True)
         with inner_cols[2]:
             inner_inner_cols = st.columns([1,0.1,1])
             with inner_inner_cols[0]:
@@ -91,7 +93,6 @@ with col2:
                 distinctNum = len(pd.unique(df[col]))
                 testCount = df[col].drop_duplicates().size
                 if report["variables"][dfCol[int(count)]]["type"] != "Variable.S_TYPE_UNSUPPORTED":
-
                     columnUnique = report["variables"][dfCol[int(count)]]["n_unique"]
                     percentageUnique = columnUnique/len(df.index)*100
                 else:
@@ -101,18 +102,21 @@ with col2:
                 percentageNull = nullNum/len(df.index)*100
                 st.write("Percentage of null values: ","%0.2f" %(percentageNull) + "%")
                 if percentageNull > 25:
-                        st.error("This attribute has more than 25" + "%" + " of null values")
+                    flagNull = True
+                    st.error("This attribute has more than 25" + "%" + " of null values")
                 st.write("Distinct values: ", distinctNum)
                 percentageDistinct = distinctNum/len(df.index)*100
                 st.write("Percentage of distinct values: ","%0.2f" %(percentageDistinct) + "%")
                 if percentageDistinct < 4:
-                        st.warning("This attribute is almost a category for the dataset")
+                    flagDistinct = True
+                    st.warning("This attribute is almost a category for the dataset")
                 st.write("Unique values: ", columnUnique)
                 if columnUnique != "Not available":
                     st.write("Percentage of unique values: ","%0.2f" %(percentageUnique) + "%")
                     if percentageUnique > 90:
                         st.warning("This attribute is a possible candidate for primary key!")
             with inner_inner_cols[2]:
+                corrList = []
                 #st.write(phik_df[col])
                 if col in phik_df.columns:
                     st.subheader("Correlation")
@@ -123,6 +127,7 @@ with col2:
                                 #st.write(f"Correlation between  **{col}** and **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
                                 st.write(f"Correlation with **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
                                 st.write("")
+                                corrList.append([phik_df.columns[y], x])
                     
 
 with col3:
@@ -143,6 +148,39 @@ with col3:
             if st.button("Next"):
                 st.session_state['counter'] = count + 1
                 st.experimental_rerun()
+x = 0
+if flagNull == True:
+    x = 1
+st.write("")
+st.write("")
+finalCols = st.columns([1.5,1,1,1,1,1,1,1,1,1],gap="large")
+with finalCols[x]:
+    if flagNull == True:
+        if st.button("Handle null values"):
+                        st.session_state['from'] = 2
+                        st.session_state['y'] = 0
+                        st.session_state['arg'] = df.iloc[:, count].copy(deep=False)
+                        switch_page("null_values")
+if flagDistinct == True:
+    x += 1    
+    with finalCols[x]:
+        if st.button("Manage categories"):
+            st.session_state['y'] = 0
+            st.session_state['arg'] = df.iloc[:, count].copy(deep=False)
+            switch_page("category")
+if len(corrList) > 0:
+    for item in corrList:
+        x += 1
+        with finalCols[x]:
+            key = x + 50
+            string =f"Correlation with **{str(item[0])}**"
+            if st.button(string, key=key):
+                st.session_state['y'] = 0
+                st.session_state['from'] = 1
+                st.session_state['correlation'] = item[1]
+                st.session_state['arg'] = df.iloc[:, count].copy(deep=False)
+                st.session_state['arg1'] = df[item[0]].copy(deep=False)
+                switch_page("data_correlation")
 
 st.markdown("---")
 if st.button("Homepage"):

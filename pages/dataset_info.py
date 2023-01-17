@@ -237,6 +237,7 @@ with colMain1:
                     with col2:
                         if st.button("Manage", key=corrButton):
                             st.session_state['y'] = 0
+                            st.session_state['from'] = 0
                             st.session_state['correlation'] = x
                             st.session_state['arg'] = df[col].copy(deep=False)
                             st.session_state['arg1'] = df[phik_df.columns[y]].copy(deep=False)
