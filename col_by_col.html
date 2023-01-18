@@ -1,0 +1,35 @@
+<script>
+    const streamlitDoc = window.parent.document;
+    
+    const buttons = Array.from(streamlitDoc.querySelectorAll('.stButton > button'));
+    console.log(buttons) // find buttons in console tab
+    
+    const substring = 'Correlation'
+
+    const null_button = buttons.find(el => el.innerText === 'Handle null values');
+    const split_button = buttons.find(el => el.innerText === 'Split column');
+    const drop_button = buttons.find(el => el.innerText === 'Drop column');
+    const cat_button = buttons.find(el => el.innerText === 'Manage categories');
+    const corr_button = buttons.find(el => el.innerText.includes(substring));
+    
+    split_button.style.backgroundColor = "white"
+    split_button.style.height = "4em"
+    split_button.style.width = "8em"
+
+    null_button.style.backgroundColor = "white"
+    null_button.style.height = "4em"
+    null_button.style.width = "8em"
+    
+    drop_button.style.backgroundColor = "white"
+    drop_button.style.height = "4em"
+    drop_button.style.width = "8em"
+
+    cat_button.style.backgroundColor = "white"
+    cat_button.style.height = "4em"
+    cat_button.style.width = "8em"
+    
+    corr_button.style.backgroundColor = "white"
+    corr_button.style.height = "4em"
+    corr_button.style.width = "8em"
+
+    </script>

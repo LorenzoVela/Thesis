@@ -49,7 +49,7 @@ with col1_4:
     if st.button("Null values handling", key=4):
         switch_page("null_values_selection")
 with col1_5:
-    st.button("Column Drop", key=5)
+    st.button("--", key=5)
         #switch_page("")
 with col1_6:
     if(st.button("Automate profiling", key=6)):
@@ -88,6 +88,11 @@ with col2_5:
     if st.button("Columns merging", key=13):
         st.session_state['y'] = 0
         switch_page("column_merging")
+with col2_6:
+    if st.button("Column dropping", key=14):
+            st.session_state['avoid'] = 0
+            st.session_state['y'] = 0
+            switch_page("column_dropping")
 
 
     

@@ -33,7 +33,9 @@ def profileAgain(df):
         newColumns.append(item)
     st.session_state['dfCol'] = newColumns
 
-
+def read_html():
+    with open("col_by_col.html") as f:
+        return f.read()
 
 
 m = st.markdown("""
@@ -81,6 +83,7 @@ with col2:
     flagDistinct = False
     flagNull = False
     flagSplit = False
+    flagDrop = False
     with st.expander("Column", expanded=True):
         col = df.columns[count]
         inner_cols = st.columns([2,0.3,5])
@@ -108,13 +111,16 @@ with col2:
                 st.write("Null values: ",nullNum)
                 percentageNull = nullNum/len(df.index)*100
                 st.write("Percentage of null values: ","%0.2f" %(percentageNull) + "%")
+                flagNull = True
                 if percentageNull > 25:
-                    flagNull = True
                     st.error("This attribute has more than 25" + "%" + " of null values")
                 st.write("Distinct values: ", distinctNum)
+                if distinctNum == 1:
+                    st.warning("This column has the same value for all the rows")
+                    flagDrop = True
                 percentageDistinct = distinctNum/len(df.index)*100
                 st.write("Percentage of distinct values: ","%0.2f" %(percentageDistinct) + "%")
-                if percentageDistinct < 4:
+                if percentageDistinct < 4 and distinctNum != 1:
                     flagDistinct = True
                     st.warning("This attribute is almost a category for the dataset")
                 st.write("Unique values: ", columnUnique)
@@ -131,7 +137,6 @@ with col2:
                         if phik_df.columns[y] != col:
                             x = float(phik_df[col][y])*100
                             if x > 60:
-                                #st.write(f"Correlation between  **{col}** and **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
                                 st.write(f"Correlation with **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
                                 st.write("")
                                 corrList.append([phik_df.columns[y], x])
@@ -168,6 +173,15 @@ with finalCols[x]:
                         st.session_state['y'] = 0
                         st.session_state['arg'] = df.iloc[:, count].copy(deep=False)
                         switch_page("null_values")
+
+if flagDrop == True:
+    x += 1
+    with finalCols[x]:
+        if st.button("Drop column"):
+            st.session_state['arg'] = col
+            st.session_state['avoid'] = 1
+            st.session_state['y'] = 0
+            switch_page("column_dropping")
 if flagDistinct == True:
     x += 1    
     with finalCols[x]:
@@ -200,6 +214,12 @@ if len(corrList) > 0:
 st.markdown("---")
 if st.button("Homepage"):
     switch_page("Homepage")
+
+#components.html(
+#    read_html(),
+#    height=0,
+#    width=0,
+#)
 
 
 
