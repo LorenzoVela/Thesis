@@ -112,6 +112,8 @@ with col2:
                 percentageNull = nullNum/len(df.index)*100
                 st.write("Percentage of null values: ","%0.2f" %(percentageNull) + "%")
                 flagNull = True
+                if nullNum == 0:
+                    flagNull = False
                 if percentageNull > 25:
                     st.error("This attribute has more than 25" + "%" + " of null values")
                 st.write("Distinct values: ", distinctNum)

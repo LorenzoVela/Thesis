@@ -296,10 +296,10 @@ with st.expander("", expanded=True):
         col1_10, col2_10 = st.columns(2)
         with col1_10:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_10:
             st.write("New column")
-            st.write(copyPreview.head(30))
+            st.write(copyPreview)
         radio10 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 10)
         if  radio10 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -373,10 +373,10 @@ with st.expander("", expanded=True):
         col1_13, col2_13 = st.columns(2)
         with col1_13:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_13:
             st.write("New column")
-            st.write(copyPreview.head(30))
+            st.write(copyPreview)
         radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 13)
         if  radio == "Yes":
             st.session_state['copyPreview'] = copyPreview
