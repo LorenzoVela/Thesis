@@ -93,6 +93,9 @@ with col2_6:
             st.session_state['avoid'] = 0
             st.session_state['y'] = 0
             switch_page("column_dropping")
+with col2_7:
+    if st.button("Duplicate detection", key=15):
+        switch_page("duplicate_detection")
 
 
     

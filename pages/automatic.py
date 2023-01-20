@@ -215,9 +215,9 @@ with body:
                         dfAutomatic = dfAutomatic.drop(col, axis=1)
                 st.markdown("---")
         for col in dfAutomatic.columns:
-            nullNum = dfAutomatic[col].isna().sum()
+            nullNum = dfAutomatic[col].isna().sum() + randint(1,100)
             percentageNull = nullNum/len(df.index)*100
-            if percentageNull > 25:
+            if percentageNull > 1:
                 if dfAutomatic[col].dtype == "object":  #automatically fill with the mode
                     x = 0
                 elif dfAutomatic[col].dtype == "float64" or dfAutomatic[col].dtype == "Int64":  #automatically fill with the average
@@ -230,12 +230,13 @@ with body:
                     strFillAutomaticRollback = f"Check to rollback the replacement of all the null values in column **{col}**"
                     originalCol = dfAutomatic[col].copy(deep=False)
                 if x == 0:
-                    #dfAutomatic[col].fillna(dfAutomatic[col].mode(), inplace=True)
+                    dfAutomatic[col].fillna(dfAutomatic[col].mode(), inplace=True)
                     strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the mode: {dfAutomatic[col].mode()}"
                     explanationWhy = "Unfortunately the column had a lot of null values. In order to influence less as possible the average value of this attribute, the mode is the value less invasive in terms of filling.  In the null values you'll have the possibility also to choose other values. If you want so, remind to rollback this change in order to still have the null values in your dataset."
                 elif x == 1:
                     avgValue = "{:.2f}".format(report["variables"][col]["mean"])
-                    #dfAutomatic[col].fillna(avgValue, inplace=True)
+                    st.write(round(float(avgValue)))
+                    dfAutomatic[col].fillna(round(float(avgValue)), inplace=True)
                     strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the average value: {avgValue}"
                     explanationWhy = "Unfortunately the column had a lot of null values. In order to influence less as possible the average value of this attribute, the mean is one of the best solution for the replacement. In the null values page you'll have the possibility also to choose other values. If you want so, remind to rollback this change in order to still have the null values in your dataset."
                 if x == 0 or x == 1:

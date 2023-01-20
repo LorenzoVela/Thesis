@@ -172,7 +172,7 @@ with body1:
                         strNumFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's a numeric column, you're suggested to replace them with its mean value, that is '{avgValue}'."
                         st.info(strNumFill)
                         choiceNum = st.radio("Select below", ["Don't replace null values", "Replace null values with the mean"])
-                        if choiceObj != "Don't replace null values":
+                        if choiceNum != "Don't replace null values":
                             droppedList.append(["nullReplacedNum", col])
                         st.markdown("---")
                     else:
@@ -231,6 +231,7 @@ with body2:
         dfPreview = df.copy()
         if st.session_state['Once'] == True:
             with st.spinner("Applying the required changes"):
+                st.write(st.session_state['droppedList'])
                 for item in st.session_state['droppedList']:
                     if item[0] == "rows":
                         dfPreview.drop(item[1], axis=0, inplace=True)
@@ -241,7 +242,7 @@ with body2:
                     elif item[0] == "nullReplacedNum":
                         col = item[1]
                         avgValue = "{:.2f}".format(report["variables"][col]["mean"])
-                        dfPreview[col].fillna(avgValue, inplace=True)
+                        dfPreview[col].fillna(round(float(avgValue)), inplace=True)
                     elif item[0] == "nullReplacedObj":
                         col = item[1]
                         dfPreview[col].fillna(dfPreview[col].mode(), inplace=True)
@@ -264,7 +265,7 @@ with body2:
                     st.write(string)
                 elif item[0] == "nullReplacedNum":
                     avgValue = "{:.2f}".format(report["variables"][item[1]]["mean"])
-                    string = f"-  Replaced all the null values present in column **{item[1]}** with its mean value ({avgValue})."
+                    string = f"-  Replaced all the null values present in column **{item[1]}** with its mean value ({round(float(avgValue))})."
                     st.write(string)
                 elif item[0] == "nullReplacedObj": 
                     string = f"-  Replaced all the null values present in column **{item[1]}** with its mode value ({dfPreview[item[1]].mode()})."
