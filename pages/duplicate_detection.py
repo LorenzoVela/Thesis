@@ -57,32 +57,38 @@ correlations = profile.description_set["correlations"]
 phik_df = correlations["phi_k"]
 
 st.title("Duplicates detection")
-#st.subheader("In this page you'll visualize all the information of every column")
-
-indexer = recordlinkage.Index()
-#df['DescrizioneVia'] = df['DescrizioneVia'].apply(str.upper)
-Blocker = Block(on=['DescrizioneVia', 'Civico'])
-candidate_links = Blocker.index(df)
-st.write(df.info())
-st.write(len(candidate_links))
-st.dataframe(candidate_links)
-setCompare = set(df.columns.drop(['DescrizioneVia', 'Civico']))
-i = 0
-for item in candidate_links:
-    st.write(df.iloc[[item[0], item[1]]])
-    row1 = df.iloc[item[0]][setCompare]
-    row2 = df.iloc[item[1]][setCompare]
-    jaroNum = 0
-    numCol = 0
-    for col in setCompare:
-        #if df.iloc[item[0]][col].isna() == False and df.iloc[item[1]][col].isna() == False:
-            numCol += 1
+slate1 = st.empty()
+body1 = slate1.container()
+with body1:
+    with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
+        st.write("The technique that is being used ..")
+    listCol = df.columns
+    listCol = listCol.insert(0, "None")
+    colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
+    if "None" not in colToDrop:
+        Blocker = Block(on=colToDrop)
+        candidate_links = Blocker.index(df)
+        numOfCouples = len(candidate_links)
+        st.write(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s")
+        st.dataframe(candidate_links)
+        setCompare = set(df.columns.drop(['DescrizioneVia', 'Civico']))
+        i = 0
+        for item in candidate_links:
             i += 1
-            jaroNum += jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col]))
-            st.write(jaroNum, col)
-    st.write(jaroNum/numCol)
-    if i == 50:
-        break
+            #st.write(df.iloc[[item[0], item[1]]])
+            row1 = df.iloc[item[0]][setCompare]
+            row2 = df.iloc[item[1]][setCompare]
+            jaroNum = 0
+            numCol = 0
+            for col in setCompare:
+                #if df.iloc[item[0]][col].isna() == False and df.iloc[item[1]][col].isna() == False:
+                    numCol += 1
+                    jaroNum += jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col]))
+                    #st.write(jaroNum, col)
+            sim = jaroNum/numCol
+            st.write(i, jaroNum/numCol)
+            if sim > 0.95:
+                st.write(df.iloc[[item[0], item[1]]])
 
 
 st.markdown("---")

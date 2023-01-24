@@ -7,6 +7,7 @@ from streamlit_extras.switch_page_button import switch_page
 from pandas_profiling import *
 import json
 import os
+from scipy import stats
 
 m = st.markdown("""
 <style>
@@ -96,7 +97,7 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 2: #fill case
         if df[dfCol.name].dtype == "object":
-            fillingOpObj = st.radio("Filling options for " + dfCol.name + ":",("", "Following Value", "Previous Value","Mode", "Custom Value"), index=0,key=107)
+            fillingOpObj = st.radio(f"Filling options for **{dfCol.name}** :",("", "Following Value", "Previous Value","Mode", "Custom Value"), index=0,key=107)
             if fillingOpObj == "Following Value":
                 st.session_state['y'] = 4
                 st.experimental_rerun()
@@ -189,7 +190,11 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 6: #Replace object with mode value
         copyPreview = dfCol.copy()
-        copyPreview.fillna(copyPreview.mode(), inplace=True)
+        #st.write(stats.mode(copyPreview))
+        strMode = report["variables"][dfCol.name]["top"]
+        st.write(strMode)
+        st.info("Replaced all the missing values with the mode value: " + strMode)
+        copyPreview.fillna(strMode, inplace=True)
         col1_6, col2_6 = st.columns(2)
         with col1_6:
             st.write("Old column")
@@ -315,7 +320,9 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 11: #Replace num with 0 value
         copyPreview = dfCol.copy()
-        st.info("Replaced all the missing values with value 0")
+        nullCount = copyPreview.isna().sum
+        infoString = "Replaced " + nullCount + " missing values with value 0"
+        st.info(infoString)
         copyPreview.replace([np.nan], 0,inplace=True)
         col1_11, col2_11 = st.columns(2)
         with col1_11:
@@ -368,7 +375,9 @@ with st.expander("", expanded=True):
         copyPreview = dfCol.copy()
         minValue = report["variables"][dfCol.name]["min"]
         minValue2 = "{:.2f}".format(minValue)
-        st.info("Replaced all the missing values with the maximum value: " + minValue2)
+        nullCount = copyPreview.isna().sum
+        infoString = "Replaced " + nullCount + " missing values with the maximum value: " + minValue2
+        st.info(infoString)
         copyPreview.replace([np.nan], minValue,inplace=True)
         col1_13, col2_13 = st.columns(2)
         with col1_13:

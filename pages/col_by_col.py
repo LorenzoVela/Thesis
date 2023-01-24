@@ -47,6 +47,12 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
+e = st.markdown("""
+<style>
+div[data-testid="stExpander"] div[role="button"] p {
+    font-size: 2rem;
+}
+</style>""", unsafe_allow_html=True)
 
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
@@ -84,8 +90,8 @@ with col2:
     flagNull = False
     flagSplit = False
     flagDrop = False
-    with st.expander("Column", expanded=True):
-        col = df.columns[count]
+    col = df.columns[count]
+    with st.expander(col, expanded=True):
         inner_cols = st.columns([2,0.3,5])
         with inner_cols[0]:
             st.dataframe(df.iloc[:, count], use_container_width=True)

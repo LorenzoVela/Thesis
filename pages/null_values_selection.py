@@ -12,8 +12,8 @@ m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height:auto;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -49,7 +49,14 @@ with st.expander("", expanded=True):
             st.session_state['arg'] = df[column].copy(deep=False)
             switch_page("null_values")
     else:
-        ()
+        st.info("If you want to replace all the null values of the dataset in one click, select here with which value")
+        col = st.columns([1,1,1.5])
+        with col[0]:
+            fillingOpStr = st.radio("Filling options for columns of type object:",("", "Following Value", "Previous Value","Mode", "Custom Value"), index=0,key=107)
+        with col[1]:
+            fillingOpNum = st.radio(f"Filling options for numeric columns :",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
+        if fillingOpNum != "" and fillingOpStr != "":
+            ()
 
 if st.button("Back to Homepage"):
     switch_page("Homepage")
