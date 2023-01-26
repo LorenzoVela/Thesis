@@ -61,7 +61,7 @@ slate1 = st.empty()
 body1 = slate1.container()
 with body1:
     with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
-        st.write("The technique that is being used ..")
+        st.write("The technique that is being used to limit the number of comparisons is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
     listCol = df.columns
     listCol = listCol.insert(0, "None")
     colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
@@ -71,7 +71,7 @@ with body1:
         numOfCouples = len(candidate_links)
         st.write(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s")
         st.dataframe(candidate_links)
-        setCompare = set(df.columns.drop(['DescrizioneVia', 'Civico']))
+        setCompare = set(df.columns.drop(colToDrop))
         i = 0
         for item in candidate_links:
             i += 1

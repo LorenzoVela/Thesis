@@ -245,7 +245,8 @@ with body2:
                         dfPreview[col].fillna(round(float(avgValue)), inplace=True)
                     elif item[0] == "nullReplacedObj":
                         col = item[1]
-                        dfPreview[col].fillna(dfPreview[col].mode(), inplace=True)
+                        strMode = report["variables"][col]["top"]
+                        dfPreview[col].fillna(strMode, inplace=True)
                     elif item[0] == "Redundancy":
                         for i in range(len(dfPreview.index)):
                                 if str(dfPreview[item[1][0]][i]) in str(dfPreview[item[1][1]][i]):

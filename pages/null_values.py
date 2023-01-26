@@ -191,10 +191,13 @@ with st.expander("", expanded=True):
     elif st.session_state['y'] == 6: #Replace object with mode value
         copyPreview = dfCol.copy()
         #st.write(stats.mode(copyPreview))
-        strMode = report["variables"][dfCol.name]["top"]
-        st.write(strMode)
-        st.info("Replaced all the missing values with the mode value: " + strMode)
-        copyPreview.fillna(strMode, inplace=True)
+        try:
+            strMode = report["variables"][dfCol.name]["top"]
+            st.write(strMode)
+            st.info("Replaced all the missing values with the mode value: " + strMode)
+            copyPreview.fillna(strMode, inplace=True)
+        except:
+            st.error("For this column is not possible to identify the mode value, no changes have been applied.")
         col1_6, col2_6 = st.columns(2)
         with col1_6:
             st.write("Old column")
