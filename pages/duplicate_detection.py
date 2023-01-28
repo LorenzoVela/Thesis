@@ -65,6 +65,9 @@ with body1:
     listCol = df.columns
     listCol = listCol.insert(0, "None")
     colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
+
+#threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
+
     if "None" not in colToDrop:
         Blocker = Block(on=colToDrop)
         candidate_links = Blocker.index(df)
@@ -87,7 +90,7 @@ with body1:
                     #st.write(jaroNum, col)
             sim = jaroNum/numCol
             st.write(i, jaroNum/numCol)
-            if sim > 0.95:
+            if sim < 0.6:
                 st.write(df.iloc[[item[0], item[1]]])
 
 

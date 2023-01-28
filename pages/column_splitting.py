@@ -170,14 +170,14 @@ with body1:
                     st.write(oneLinePreview)
                     firstColumn = st.text_input("Insert the name of the new 'First column'")
                     secondColumn = st.text_input("Insert the name of the new 'Second column' and press Enter")
-                    columnsLower = [element.lower() for element in columns]
+                    #columnsLower = [str(element).lower() for element in columns]
                     firstColumnLower = firstColumn.lower()
                     secondColumnLower = secondColumn.lower()
                     if firstColumn == "" or secondColumn == "":
                         ()
                     elif firstColumnLower == secondColumnLower:
                         st.error("The columns name should be distinct")
-                    elif firstColumnLower in columnsLower or secondColumnLower in columnsLower:
+                    #elif firstColumnLower in columnsLower or secondColumnLower in columnsLower:
                         st.error("One of the two columns is already present in the dataset")
                     else:
                         #st.write("ok")
