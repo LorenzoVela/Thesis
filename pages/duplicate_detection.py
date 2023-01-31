@@ -43,11 +43,18 @@ m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:7em;
-    width:7em;
+    height:auto;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
+def clean0 ():
+    slate2.empty()
+    st.session_state['y'] = 0
+
+def clean1 ():
+    slate1.empty()
+    st.session_state['y'] = 1
 
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
@@ -59,22 +66,80 @@ phik_df = correlations["phi_k"]
 st.title("Duplicates detection")
 slate1 = st.empty()
 body1 = slate1.container()
+slate2 = st.empty()
+body2 = slate2.container()
 with body1:
-    with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
-        st.write("The technique that is being used to limit the number of comparisons is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
-    listCol = df.columns
-    listCol = listCol.insert(0, "None")
-    colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
+    if st.session_state['y'] == 0:
+        with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
+            st.write("The technique that is being used to limit the number of comparisons is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
+        listCol = df.columns
+        listCol = listCol.insert(0, "None")
+        colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
 
-#threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
+    #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
 
-    if "None" not in colToDrop:
-        Blocker = Block(on=colToDrop)
-        candidate_links = Blocker.index(df)
-        numOfCouples = len(candidate_links)
-        st.write(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s")
-        st.dataframe(candidate_links)
-        setCompare = set(df.columns.drop(colToDrop))
+        if "None" not in colToDrop:
+            try:
+                Blocker = Block(on=colToDrop)
+                candidate_links = Blocker.index(df)
+                numOfCouples = len(candidate_links)
+            except:
+                st.error("Please select something, ignore the errors.")
+            if len(candidate_links) > 0:
+                st.info(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s. These are two samples:")
+                st.write(df.iloc[[candidate_links[1][0], candidate_links[1][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
+                st.write(df.iloc[[candidate_links[3][0], candidate_links[3][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
+                #st.write(df.iloc[[candidate_links[1][0], candidate_links[1][1]]])
+                #st.dataframe(candidate_links)
+                #setCompare = set(df.columns.drop(colToDrop))
+                setCompare = list(df.columns.drop(colToDrop))
+                weights = []
+                #st.write(setCompare)
+                for col in df.columns:
+                    if col in setCompare and (len(pd.unique(df[col])) == 1 or col == "Location" or col == "LONG_WGS84" or col == "LAT_WGS84"):
+                        setCompare.remove(col)
+                    else:
+                        ()
+                #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
+                st.write("Automatically removing all the columns that have a unique values and columns: Location, LAT, LONG")
+                setCompare.insert(0, "--")
+                colToDropWeights = st.multiselect("Select one or more columns that won't be used to calculate the similarity parameter", setCompare)
+                if len(colToDropWeights) > 0:
+                    if len(colToDropWeights) > 1 and "--" in colToDropWeights:
+                        st.warning("If you want to remove something, please remove '--'")
+                    else:
+                        if "--" in setCompare:
+                            setCompare.remove("--")
+                        setCompare[:] = [x for x in setCompare if x not in colToDropWeights]
+                        #setCompare.remove(colToDropWeights)
+                        st.markdown("---")
+                        st.subheader("Select the weights")
+                        st.write("")
+                        columnsWeight = st.columns([1 for i in range(len(setCompare))], gap="small")
+                        #setCompareList = list(setCompare)
+                        for i in range(len(setCompare)):
+                            with columnsWeight[i]:
+                                label = str(setCompare[i])
+                                weight = st.number_input(label, 0.0, 2.0, 1.0, 0.25)
+                                weights.append(weight)
+                        st.markdown("---")
+                        threshold = st.slider("Select a similarity threshold above to display the pairs of possible duplicate rows", 0.01, 1.00, value=0.9, step=0.01)
+                        st.write("")
+                        st.session_state['weights'] = weights
+                        st.session_state['threshold'] = threshold
+                        st.session_state['setCompare'] = setCompare
+                        st.session_state['candidate_links'] = candidate_links
+                        if st.button("Go!", on_click=clean1):
+                            ()
+            else:
+                st.error("This attribute is not eligible for blocking, given the fact that is unique for every row.")
+        else:
+            ()
+with body2:
+    if st.session_state['y'] == 1:
+        candidate_links = st.session_state['candidate_links'] 
+        setCompare = st.session_state['setCompare']
+        threshold = st.session_state['threshold']
         i = 0
         for item in candidate_links:
             i += 1
@@ -90,9 +155,10 @@ with body1:
                     #st.write(jaroNum, col)
             sim = jaroNum/numCol
             st.write(i, jaroNum/numCol)
-            if sim < 0.6:
+            if sim >= threshold:
                 st.write(df.iloc[[item[0], item[1]]])
-
+        if st.button("Back",on_click=clean0):
+            ()
 
 st.markdown("---")
 if st.button("Homepage"):

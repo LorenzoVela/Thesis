@@ -65,6 +65,7 @@ with pageCol[0]:
                 switch_page("suggested_actions")
         with datasetRow2[1]:
             if st.button("Duplicate detection", key=215):
+                st.session_state['y'] = 0
                 switch_page("duplicate_detection")
         with datasetRow2[2]:
             if(st.button("Automate wrangling", key=26)):
