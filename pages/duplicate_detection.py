@@ -73,21 +73,22 @@ with body1:
     if st.session_state['y'] == 0:
         setColToDropWeights = set()
         with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
-            st.write("The technique that is being used to limit the number of comparisons is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
+            st.write(f"The technique that is being used for the **record linkage** is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
+            st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences")
         listCol = df.columns
         listCol = listCol.insert(0, "None")
         colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
 
     #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
-
+        numOfCouples = 0
         if "None" not in colToDrop:
             try:
                 Blocker = Block(on=colToDrop)
                 candidate_links = Blocker.index(df)
                 numOfCouples = len(candidate_links)
             except:
-                st.error("Please select something, ignore the errors.")
-            if len(candidate_links) > 0:
+                st.error("Please select something.")
+            if numOfCouples > 0:
                 st.info(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s. These are two samples:")
                 st.write(df.iloc[[candidate_links[1][0], candidate_links[1][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
                 st.write(df.iloc[[candidate_links[3][0], candidate_links[3][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
@@ -105,7 +106,7 @@ with body1:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write("Automatically removing from the set used to calculate the similarity all the columns that have a unique values and columns: Location, LAT, LONG")
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values and columns: **Location**, **LAT_WGS84**, **LONG_WGS84**")
                 colToDropWeights = st.multiselect("Select one or more additional column that won't be used to calculate the similarity parameter", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
@@ -115,7 +116,7 @@ with body1:
                 st.markdown("---")
                 st.subheader("Select the weights")
                 st.write("")
-                st.write("setCompareTemp", setCompareTemp,"setCompare", setCompare,"setCol", setColToDropWeights)
+                #st.write("setCompareTemp", setCompareTemp,"setCompare", setCompare,"setCol", setColToDropWeights)
                 columnsWeight = st.columns([1 for i in range(len(setCompare))], gap="small")
                 for i in range(len(setCompare)):
                     with columnsWeight[i]:
@@ -131,7 +132,7 @@ with body1:
                 st.session_state['candidate_links'] = candidate_links
                 if st.button("Go!", on_click=clean1):
                     ()
-            else:
+            elif len(colToDrop) > 0:
                 st.error("This attribute is not eligible for blocking, given the fact that is unique for every row.")
         else:
             ()
@@ -146,22 +147,28 @@ with body2:
         i = 0
         for item in candidate_links:
             i += 1
-            #row1 = df.iloc[item[0]][setCompare]
-            #row2 = df.iloc[item[1]][setCompare]
+            row1Null = df.iloc[item[0]].isna().sum(axis=0)
+            row2Null = df.iloc[item[1]].isna().sum(axis=0)
             jaroNum = 0
             totalWeight = 0
             for col, weight in zip(setCompare, weights):
                 if str(weight[1]) == col:
-                    st.write(col, weight)
+                    #st.write(col, weight)
                     totalWeight += weight[0]
                     jaroNum += (jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col])) * weight[0])
                     #st.write(jaroNum, col)
-            st.write(jaroNum, totalWeight)
+            st.write("Sum of all the wighted similarities", jaroNum)
+            st.write("Sum of all the weights" , totalWeight)
             sim = jaroNum/totalWeight
-            st.write(i, jaroNum/totalWeight)
+            st.write("Similarity of row ", i, " is ", sim)
             #break
             if sim >= threshold:
                 st.write(df.iloc[[item[0], item[1]]])
+                st.write("Null values in row 1 ", row1Null)
+                st.write("Null values in row 2 ", row2Null)
+            if i == 20:
+                break
+            st.markdown("---")
         if st.button("Back",on_click=clean0):
             ()
 
