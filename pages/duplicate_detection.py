@@ -74,14 +74,13 @@ with body1:
         setColToDropWeights = set()
         with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
             st.write(f"The technique that is being used for the **record linkage** is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
-            st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences")
+            st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences. In this case the algorithm is slightly modified: to calculate the similarity between two rows every attribute can have a weight between 0 and 2.")
         listCol = df.columns
-        listCol = listCol.insert(0, "None")
-        colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, "None")
+        colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol)
 
     #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
         numOfCouples = 0
-        if "None" not in colToDrop:
+        if len(colToDrop) > 0:
             try:
                 Blocker = Block(on=colToDrop)
                 candidate_links = Blocker.index(df)
@@ -106,8 +105,8 @@ with body1:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values and columns: **Location**, **LAT_WGS84**, **LONG_WGS84**")
-                colToDropWeights = st.multiselect("Select one or more additional column that won't be used to calculate the similarity parameter", setCompareTemp)    
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row and columns: **Location**, **LAT_WGS84**, **LONG_WGS84**")
+                colToDropWeights = st.multiselect("Select one or more additional column that won't be used as weight to calculate the string similarity", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
                     setCompare = [x for x in setCompareTemp if x not in setColToDropWeights]
@@ -133,7 +132,7 @@ with body1:
                 if st.button("Go!", on_click=clean1):
                     ()
             elif len(colToDrop) > 0:
-                st.error("This attribute is not eligible for blocking, given the fact that is unique for every row.")
+                st.error("One of the attribute chosen is not eligible for blocking, given the fact that is unique for every row.")
         else:
             ()
 with body2:
@@ -166,8 +165,8 @@ with body2:
                 st.write(df.iloc[[item[0], item[1]]])
                 st.write("Null values in row 1 ", row1Null)
                 st.write("Null values in row 2 ", row2Null)
-            if i == 20:
-                break
+            #if i == 20:
+            #    break
             st.markdown("---")
         if st.button("Back",on_click=clean0):
             ()
