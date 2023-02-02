@@ -80,6 +80,7 @@ with body1:
 
     #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
         numOfCouples = 0
+        max = ((len(df.index) * (len(df.index) - 1)) / 5)
         if len(colToDrop) > 0:
             try:
                 Blocker = Block(on=colToDrop)
@@ -87,7 +88,9 @@ with body1:
                 numOfCouples = len(candidate_links)
             except:
                 st.error("Please select something.")
-            if numOfCouples > 0:
+            if numOfCouples >= max:
+                st.error(f"This set is not eligile for blocking because generates too many comparisons (**{numOfCouples}**). Please, change the blocking set.")
+            elif numOfCouples > 0 and numOfCouples < max:
                 st.info(f"There are **{numOfCouples}** couples of rows that have the same values for this set of column/s. These are two samples:")
                 st.write(df.iloc[[candidate_links[1][0], candidate_links[1][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
                 st.write(df.iloc[[candidate_links[3][0], candidate_links[3][1]]].style.apply(lambda x: ['background-color: lightgreen' if x.name in colToDrop else '' for i in x], axis=0))
@@ -105,7 +108,7 @@ with body1:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row and columns: **Location**, **LAT_WGS84**, **LONG_WGS84**")
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row and columns: **Codice**, **Location**, **LAT_WGS84**, **LONG_WGS84**")
                 colToDropWeights = st.multiselect("Select one or more additional column that won't be used as weight to calculate the string similarity", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
@@ -124,6 +127,8 @@ with body1:
                         weights.append([weight, label])
                 st.markdown("---")
                 threshold = st.slider("Select a similarity threshold above to display the pairs of possible duplicate rows", 0.01, 1.00, value=0.9, step=0.01)
+                if threshold < 0.9:
+                    st.warning("Pay attention because the computation can take up to some minutes!")
                 st.write("")
                 st.session_state['weights'] = weights
                 st.session_state['threshold'] = threshold
@@ -144,6 +149,7 @@ with body2:
         #st.write(weights)
         #st.write(setCompare)
         i = 0
+        count = 0
         for item in candidate_links:
             i += 1
             row1Null = df.iloc[item[0]].isna().sum(axis=0)
@@ -152,22 +158,23 @@ with body2:
             totalWeight = 0
             for col, weight in zip(setCompare, weights):
                 if str(weight[1]) == col:
-                    #st.write(col, weight)
                     totalWeight += weight[0]
                     jaroNum += (jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col])) * weight[0])
                     #st.write(jaroNum, col)
-            st.write("Sum of all the wighted similarities", jaroNum)
-            st.write("Sum of all the weights" , totalWeight)
+            #st.write("Sum of all the wighted similarities", jaroNum)
+            #st.write("Sum of all the weights" , totalWeight)
             sim = jaroNum/totalWeight
-            st.write("Similarity of row ", i, " is ", sim)
-            #break
-            if sim >= threshold:
+            st.write("Similarity of couple ", i, " is ", sim)
+            if sim >= threshold:     #with 0.7 -> 40second
+                count += 1
                 st.write(df.iloc[[item[0], item[1]]])
-                st.write("Null values in row 1 ", row1Null)
-                st.write("Null values in row 2 ", row2Null)
+                #st.write("Null values in row 1 ", row1Null)
+                #st.write("Null values in row 2 ", row2Null)
             #if i == 20:
             #    break
             st.markdown("---")
+        st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
+        st.write("")
         if st.button("Back",on_click=clean0):
             ()
 
