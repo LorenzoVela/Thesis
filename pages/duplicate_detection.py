@@ -123,7 +123,7 @@ with body1:
                 for i in range(len(setCompare)):
                     with columnsWeight[i]:
                         label = str(setCompare[i])
-                        weight = st.number_input(label, 0.0, 2.0, 1.0, 0.25)
+                        weight = st.number_input(label, 0.0, 100.0, 1.0, 0.25)
                         weights.append([weight, label])
                 st.markdown("---")
                 threshold = st.slider("Select a similarity threshold above to display the pairs of possible duplicate rows", 0.01, 1.00, value=0.9, step=0.01)
@@ -168,8 +168,8 @@ with body2:
             if sim >= threshold:     #with 0.7 -> 40second
                 count += 1
                 st.write(df.iloc[[item[0], item[1]]])
-                #st.write("Null values in row 1 ", row1Null)
-                #st.write("Null values in row 2 ", row2Null)
+                st.write("Null values in row 1 ", row1Null)
+                st.write("Null values in row 2 ", row2Null)
             #if i == 20:
             #    break
             st.markdown("---")
