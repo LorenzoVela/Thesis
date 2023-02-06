@@ -57,6 +57,10 @@ def clean1 ():
     slate1.empty()
     st.session_state['y'] = 1
 
+def clean10 ():
+    slate1.empty()
+    st.session_state['y'] = 2
+
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 profile = st.session_state['profile']
@@ -76,8 +80,7 @@ with body1:
             st.write(f"The technique that is being used for the **record linkage** is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
             st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences. In this case the algorithm is slightly modified: to calculate the similarity between two rows every attribute can have a weight between 0 and 2.")
         listCol = df.columns
-        colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol)
-
+        colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, key="multiselect")
     #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
         numOfCouples = 0
         max = ((len(df.index) * (len(df.index) - 1)) / 5)
@@ -102,13 +105,13 @@ with body1:
                 setCompare = []
                 #st.write(setCompare)
                 for col in df.columns:
-                    if col in setCompareTemp and (len(pd.unique(df[col])) == len(df.index) or len(pd.unique(df[col])) == 1 or col == "Location" or col == "LONG_WGS84" or col == "LAT_WGS84"):
+                    if col in setCompareTemp and (len(pd.unique(df[col])) == len(df.index) or len(pd.unique(df[col])) == 1):
                         setCompareTemp.remove(col)
                     else:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row and columns: **Codice**, **Location**, **LAT_WGS84**, **LONG_WGS84**")
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row")
                 colToDropWeights = st.multiselect("Select one or more additional column that won't be used as weight to calculate the string similarity", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
@@ -130,18 +133,28 @@ with body1:
                 if threshold < 0.9:
                     st.warning("Pay attention because the computation can take up to some minutes!")
                 st.write("")
+                drop = st.checkbox("Check to drop the rows that has more null values within the same couple. To perform this no conflicts should be present.")
+                st.write("")
+                st.write("")
                 st.session_state['weights'] = weights
                 st.session_state['threshold'] = threshold
                 st.session_state['setCompare'] = setCompare
                 st.session_state['candidate_links'] = candidate_links
-                if st.button("Go!", on_click=clean1):
-                    ()
+                st.session_state['drop'] = drop
+                columns = st.columns([1,10,1], gap='small')
+                with columns[0]:
+                    if st.button("Go!", on_click=clean1):
+                        ()
+                with columns[2]:
+                    if st.button("Clear selection", on_click=clean10):
+                        ()
             elif len(colToDrop) > 0:
                 st.error("One of the attribute chosen is not eligible for blocking, given the fact that is unique for every row.")
         else:
             ()
 with body2:
     if st.session_state['y'] == 1:
+        drop = st.session_state['drop']
         candidate_links = st.session_state['candidate_links'] 
         setCompare = st.session_state['setCompare']
         threshold = st.session_state['threshold']
@@ -165,18 +178,39 @@ with body2:
             #st.write("Sum of all the weights" , totalWeight)
             sim = jaroNum/totalWeight
             st.write("Similarity of couple ", i, " is ", sim)
-            if sim >= threshold:     #with 0.7 -> 40second
-                count += 1
+            if sim == 1:
                 st.write(df.iloc[[item[0], item[1]]])
+                count += 1
+            elif sim >= threshold:     #with 0.7 -> 40second
+                st.write(df.iloc[[item[0], item[1]]])
+                count += 1
+                #st.write(df.iloc[[item[0]]][setCompare])
                 st.write("Null values in row 1 ", row1Null)
                 st.write("Null values in row 2 ", row2Null)
-            #if i == 20:
-            #    break
+                if drop:
+                    row1 = df.iloc[item[0]]
+                    row2 = df.iloc[item[1]]
+                    #provare sempre a droppare row1
+                    for attr in setCompare:
+                        ()
+                        #if: the 2 values are equal and not none
+                            #join ok
+                        #elif: the 2 values are not equal and not none
+                            #non posso fare il join
+                        #elif:
+                            #join ok, o prendi l'unico valore non null o ci metti null
+            if i == 20:
+                break
             st.markdown("---")
         st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
         st.write("")
         if st.button("Back",on_click=clean0):
             ()
+
+if st.session_state['y'] == 2:
+    st.session_state['y'] = 0
+    st.session_state.multiselect = []
+    st.experimental_rerun()
 
 st.markdown("---")
 if st.button("Homepage"):
