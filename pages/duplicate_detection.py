@@ -187,19 +187,31 @@ with body2:
                 #st.write(df.iloc[[item[0]]][setCompare])
                 st.write("Null values in row 1 ", row1Null)
                 st.write("Null values in row 2 ", row2Null)
-                if drop:
-                    row1 = df.iloc[item[0]]
-                    row2 = df.iloc[item[1]]
-                    #provare sempre a droppare row1
-                    for attr in setCompare:
-                        ()
-                        #if: the 2 values are equal and not none
-                            #join ok
-                        #elif: the 2 values are not equal and not none
-                            #non posso fare il join
-                        #elif:
-                            #join ok, o prendi l'unico valore non null o ci metti null
-            if i == 20:
+                if (row1Null + row2Null) > 0:
+                    if drop:
+                        result = {}
+                        row1 = df.iloc[item[0]]
+                        row2 = df.iloc[item[1]]
+                        flag = "YES"
+                        #provare sempre a droppare row1
+                        for attr in setCompare:
+                            if str(row1[attr]) in ['<NA>', 'nan']:
+                                result[attr] = row2[attr]
+                                #st.write(result[attr], "row1 was null")
+                            elif str(row2[attr]) in ['<NA>', 'nan']:
+                                result[attr] = row1[attr]
+                                #st.write(result[attr], "row2 was null")
+                            elif str(row1[attr]) == str(row2[attr]):
+                                result[attr] = row1[attr]
+                                #st.write(result[attr], "None of them was null")
+                            else:
+                                flag = "NO"
+                                break
+                        st.write(f"**{flag}**  {result}")
+                        if flag == "YES":
+                            df.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                            st.write(df.iloc[[item[0]]])
+            if i == 40:
                 break
             st.markdown("---")
         st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
