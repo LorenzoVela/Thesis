@@ -231,7 +231,7 @@ with body2:
         dfPreview = df.copy()
         if st.session_state['Once'] == True:
             with st.spinner("Applying the required changes"):
-                st.write(st.session_state['droppedList'])
+                #st.write(st.session_state['droppedList'])
                 for item in st.session_state['droppedList']:
                     if item[0] == "rows":
                         dfPreview.drop(item[1], axis=0, inplace=True)
