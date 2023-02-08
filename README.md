@@ -1,21 +1,23 @@
-# Data Wrangler App
+# Lorenzo Vela Thesis
 
-## 📥 Install the environment
-To install the streamlit environment please follow this quick installation guide:
-https://docs.streamlit.io/library/get-started/installation
+## Install the environment
+To install the streamlit environment in Anaconda:
+pip install streamlit==version
 
-## 🛎️ Requirements
+The current streamlit version used by the app is 1.15.1
+
+Additional packages to be downloaded:
+- pip install streamlit-extras
+- pip install streamlit-nested-layout
+- pip install streamlit-pandas-profiling
+
+## Requirements
 You can find all the libraries used in this project in the requirements.txt.
 
-## 🖥️ Deploy local app
+## Deploy the app
 Clone this app, simply by downloading the zip file of the repo. Open it on your local pc.
 
-⚠️ Remember to change inside the "automatic_data_wrangling.py" script:
-- folder path where the json profile report will be saved (line 59)
-- folder path where the wrangled-dataset with column rename feature will be saved (line 702)
-
-## 🏃 Run
-👀 Everytime you change dataset remember to delete the old json report! 👀
+## Run
 
 From your conda environment:
 
