@@ -332,11 +332,18 @@ if st.session_state['y'] == 3:
             dfAutomatic = dfAutomatic.drop(col, axis=1)
     st.subheader("Real time preview")
     st.write(dfAutomatic.head(50))
-    if st.button("Save"):
-        st.session_state['newdf'] = dfAutomatic.copy()
-        st.session_state['y'] = 2
-        st.session_state['toBeProfiled'] = True
-        st.experimental_rerun()
+    col1, col2, col3 = st.columns([1,1,8], gap='small')
+    with col1:
+        if st.button("Save"):
+            st.session_state['newdf'] = dfAutomatic.copy()
+            st.session_state['y'] = 2
+            st.session_state['toBeProfiled'] = True
+            st.experimental_rerun()
+    with col2:
+        if st.button("Back"):
+                st.session_state['y'] = 0
+                st.session_state['once'] = True
+                st.experimental_rerun()
 
 
 
