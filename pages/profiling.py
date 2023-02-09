@@ -11,8 +11,8 @@ m = st.markdown("""
 <style>
 div.stButton > button:first-child {
     background-color: rgb(255, 254, 239);
-    height:4em;
-    width:4em;
+    height:auto;
+    width:auto;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -22,6 +22,6 @@ pr = df.profile_report()
 pr.to_file("testProfile.json")
 st_profile_report(pr)
 
-if st.button("Done!"):
+if st.button("Back to homepage"):
         switch_page("Homepage")
 

@@ -185,7 +185,7 @@ with body1:
                 st.session_state['redundancyList'] = []
                 for col in df.columns:
                     for col1 in df.columns:
-                        if col != col1:
+                        if col != col1 and col != "MUNICIPIO" and col1 != "MUNICIPIO":
                             dup = 0
                             for i in range(length):
                                 if str(df[col][i]) in str(df[col1][i]):  #col1/arg1 ubicazione, col/arg descrizioneVia

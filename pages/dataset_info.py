@@ -268,6 +268,5 @@ with colMain4:
         #    webbrowser.open("http://localhost:8501/dataset_info#automatic", 0)
 #elif st.session_state['status'] == 1:
 #    st.write("Test")
-st.markdown("---")
 if st.button("Homepage"):
         switch_page("Homepage")
