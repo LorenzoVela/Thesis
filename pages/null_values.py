@@ -193,7 +193,7 @@ with st.expander("", expanded=True):
         #st.write(stats.mode(copyPreview))
         try:
             strMode = report["variables"][dfCol.name]["top"]
-            st.write(strMode)
+            #st.write(strMode)
             st.info("Replaced all the missing values with the mode value: " + strMode)
             copyPreview.fillna(strMode, inplace=True)
         except:

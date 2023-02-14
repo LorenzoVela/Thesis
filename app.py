@@ -12,4 +12,4 @@ st.title("Welcome to the introduction page")
 start_button = st.button("Let's start the analysis")
 st.session_state['x'] = 0
 if start_button:
-    switch_page("preHomepage")
+    switch_page("upload")

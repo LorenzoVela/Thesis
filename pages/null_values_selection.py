@@ -57,13 +57,42 @@ with st.expander("", expanded=True):
         with col[1]:
             fillingOpNum = st.radio(f"Filling options for numeric columns :",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
         if fillingOpNum != "" and fillingOpStr != "":
-            dfPreview = df.copy()
-            for col in df.columns:
-                if dfPreview[col].dtype != "Variable.S_TYPE_UNSUPPORTED":
-                    if dfPreview[col].dtype == "object":
-                        ()#missing the switch between the 4 different types of filling for str
-                    elif dfPreview[col].dtype == "float64" or dfPreview[col].dtype == "Int64":
-                        ()#missing the switch between the 5 different types of filling for num
+            copyPreview = df.copy()
+            for dfCol in df.columns:
+                if df[dfCol].isna().sum() > 0:
+                    if copyPreview[dfCol].dtype != "Variable.S_TYPE_UNSUPPORTED":
+                        if copyPreview[dfCol].dtype == "object":
+                            if fillingOpStr == "Following Value":
+                                copyPreview.fillna(method="bfill", inplace=True)
+                            elif fillingOpStr == "Previous Values":
+                                copyPreview.fillna(method="ffill", inplace=True)
+                            elif fillingOpStr == "Mode":
+                                strMode = report["variables"][dfCol]["top"]
+                                try:
+                                    strMode = report["variables"][dfCol]["top"]
+                                    copyPreview.fillna(strMode, inplace=True)
+                                except:
+                                    st.error(f"For column **{dfCol}** is not possible to identify the mode value, no changes have been applied.")
+                            elif fillingOpStr == "Custom Value":
+                                customValue = st.text_input("Please insert the custom value you want to use:")
+                                if len(customValue) != 0:
+                                    copyPreview.replace([np.nan], customValue, inplace=True)
+                        elif copyPreview[dfCol].dtype == "float64" or copyPreview[dfCol].dtype == "Int64":
+                            if fillingOpNum == "Min":
+                                minValue = report["variables"][dfCol]["min"]
+                                copyPreview.replace([np.nan], minValue, inplace=True)
+                            elif fillingOpNum == "Max":
+                                maxValue = report["variables"][dfCol]["max"]
+                                copyPreview.replace([np.nan], maxValue,inplace=True)
+                            elif fillingOpNum == "Avg":
+                                avgValue = report["variables"][dfCol]["mean"]
+                                avgValue2 = round(avgValue)
+                                copyPreview.replace([np.nan], avgValue2,inplace=True)
+                            elif fillingOpNum == "0":
+                                copyPreview.replace([np.nan], 0,inplace=True)
+                            elif fillingOpNum == "Mode":
+                                copyPreview.fillna(copyPreview.mode()[0], inplace=True)
+                        
 
 
 
