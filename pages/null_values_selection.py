@@ -59,25 +59,38 @@ with st.expander("", expanded=True):
         if fillingOpNum != "" and fillingOpStr != "":
             copyPreview = df.copy()
             for dfCol in df.columns:
+
+
+                #copypreview è il dataset!!! Devo riempire la colonna dfCol io
+
+
+
                 if df[dfCol].isna().sum() > 0:
-                    if copyPreview[dfCol].dtype != "Variable.S_TYPE_UNSUPPORTED":
-                        if copyPreview[dfCol].dtype == "object":
+                    #st.write(df[dfCol].isna().sum(), dfCol)
+                    #st.write(str(df[dfCol].dtype), dfCol)
+                    if report["variables"][dfCol]["type"] != "Variable.S_TYPE_UNSUPPORTED":
+                        if str(df[dfCol].dtype) == "object":
                             if fillingOpStr == "Following Value":
                                 copyPreview.fillna(method="bfill", inplace=True)
                             elif fillingOpStr == "Previous Values":
                                 copyPreview.fillna(method="ffill", inplace=True)
                             elif fillingOpStr == "Mode":
-                                strMode = report["variables"][dfCol]["top"]
+                                st.write(copyPreview['DescrizioneVia'].isna().sum())
+                                #st.write(dfCol, type(df[dfCol]))
+                                #strMode = report["variables"][dfCol]["top"]
                                 try:
+                                    st.write(copyPreview['DescrizioneVia'].isna().sum())
                                     strMode = report["variables"][dfCol]["top"]
                                     copyPreview.fillna(strMode, inplace=True)
+                                    st.write(copyPreview['DescrizioneVia'].isna().sum())
                                 except:
+                                    st.write(copyPreview['DescrizioneVia'].isna().sum())
                                     st.error(f"For column **{dfCol}** is not possible to identify the mode value, no changes have been applied.")
                             elif fillingOpStr == "Custom Value":
                                 customValue = st.text_input("Please insert the custom value you want to use:")
                                 if len(customValue) != 0:
                                     copyPreview.replace([np.nan], customValue, inplace=True)
-                        elif copyPreview[dfCol].dtype == "float64" or copyPreview[dfCol].dtype == "Int64":
+                        elif str(df[dfCol].dtype) == "float64" or str(df[dfCol].dtype) == "Int64":
                             if fillingOpNum == "Min":
                                 minValue = report["variables"][dfCol]["min"]
                                 copyPreview.replace([np.nan], minValue, inplace=True)
@@ -92,6 +105,15 @@ with st.expander("", expanded=True):
                                 copyPreview.replace([np.nan], 0,inplace=True)
                             elif fillingOpNum == "Mode":
                                 copyPreview.fillna(copyPreview.mode()[0], inplace=True)
+            nullBeforePercentage = report["table"]["p_cells_missing"]*100
+            st.write("Missing values before the filling: ", report["table"]["n_cells_missing"], "(~", "%0.2f" %(nullBeforePercentage) + "%)")
+            nullAfter = copyPreview.isna().sum().sum()
+            if nullAfter > 0:
+                nullAfterPercentage = copyPreview.count().sum() / nullAfter * 100
+            else:
+                nullAfterPercentage = 0
+            st.write("Missing values after the filling: ", nullAfter, "(~", "%0.2f" %(nullAfterPercentage) + "%)")
+            st.write(copyPreview)
                         
 
 
