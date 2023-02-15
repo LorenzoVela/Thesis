@@ -38,78 +38,81 @@ st.title("Homepage")
 #st.error("⚠️REMEMBER: when you are one the wrangling page do NOT call back the data profiling page. You will lost every operation done!")
 st.write(" ")
 st.write(" ")
-pageCol = st.columns([1,1])
+pageCol = st.columns([1,1,1])
 with pageCol[0]:
-    with st.expander(f"**Dataset** based actions and information", expanded=True):
-        datasetRow1 = st.columns([1,1,1,1,1])
+    with st.expander(f"**Data profiling**", expanded=True):
         st.write("")
+        profilingRow1 = st.columns([1,1,1])
         st.write("")
-        datasetRow2 = st.columns([1,1,1,1,1])
-        with datasetRow1[0]:
-            if(st.button("Pandas Profiling", key=1)):
+        profilingRow2 = st.columns([1,1,1])
+        with profilingRow1[0]:
+            if(st.button("Profiling", key=1)):
                 switch_page("profiling")
-        with datasetRow1[1]:
+        with profilingRow1[1]:
             if st.button("Dataset Info", key=2):
                 st.session_state['status'] = 0
                 switch_page("dataset_info")
-        with datasetRow1[2]:
+        with profilingRow1[2]:
             if st.button("Show Entire dataset", key=3):
                 switch_page("visualize_dataset")
-        with datasetRow1[3]:
+        with profilingRow2[0]:
             if st.button("Download dataset", key=4):
                 switch_page("download_dataset")
-        with datasetRow2[0]:
-            if st.button("Suggested actions", key=5):
-                st.session_state['Once'] = True
-                st.session_state['y'] = 0
-                switch_page("suggested_actions")
-        with datasetRow2[1]:
+        with profilingRow2[1]:
+            if st.button("Info by column", key=12):
+                st.session_state['counter'] = 0
+                switch_page("col_by_col")
+with pageCol[1]:
+    with st.expander(f"**Data cleaning**", expanded=True):
+        st.write("")
+        cleaningRow1 = st.columns([1,1,1])
+        st.write("")
+        cleaningRow2 = st.columns([1,1,1])
+        with cleaningRow1[0]:
             if st.button("Duplicate detection", key=6):
                 st.session_state['y'] = 0
                 switch_page("duplicate_detection")
-        with datasetRow2[2]:
-            if(st.button("Automate wrangling", key=7)):
-                st.session_state['y'] = 0
-                st.session_state['widget'] = 500
-                switch_page("automatic")
-        with datasetRow2[3]:
-            ()
-with pageCol[1]:
-    with st.expander(f"**Column** based actions and information", expanded=True):
-        columnRow1 = st.columns([1,1,1,1,1])
-        st.write("")
-        st.write("")
-        columnRow2 = st.columns([1,1,1,1,1])
-        with columnRow1[0]:
-            if st.button("Values Management", key=8):
-                st.session_state['y'] = 0
-                switch_page("value_filtering")
-        with columnRow1[1]:
-            if st.button("Null values handling", key=9):
+        with cleaningRow1[1]:
+            if st.button("Null values", key=9):
                 switch_page("null_values_selection")
-        with columnRow1[2]:
-            if st.button("Column renaming", key=10):
-                st.session_state['y'] = 0
-                switch_page("column_renaming")
-        with columnRow1[3]:
-            if st.button("Column splitting", key=11):
-                st.session_state['avoid'] = 0
-                st.session_state['y'] = 0
-                switch_page("column_splitting")
-        with columnRow2[0]:
-            if st.button("Column by column", key=12):
-                st.session_state['counter'] = 0
-                switch_page("col_by_col")
-        with columnRow2[1]:
-            if st.button("Columns merging", key=13):
-                st.session_state['y'] = 0
-                switch_page("column_merging")
-        with columnRow2[2]:
+        with cleaningRow1[2]:
             if st.button("Column dropping", key=14):
                 st.session_state['avoid'] = 0
                 st.session_state['y'] = 0
                 switch_page("column_dropping")
-        with columnRow2[3]:
-            ()
+            
+        with cleaningRow2[0]:
+            if(st.button("Automatic Cleaning", key=7)):
+                st.session_state['y'] = 0
+                st.session_state['widget'] = 500
+                switch_page("automatic")
+        with cleaningRow2[1]:
+            if st.button("Suggested actions", key=5):
+                st.session_state['Once'] = True
+                st.session_state['y'] = 0
+                switch_page("suggested_actions")
+with pageCol[2]:
+    with st.expander(f"**Data wrangling**", expanded=True):
+        st.write("")
+        wranglingRow1 = st.columns([1,1,1])
+        st.write("")
+        wranglingRow2 = st.columns([1,1,1])
+        with wranglingRow1[0]:
+            if st.button("Values editing", key=8):
+                st.session_state['y'] = 0
+                switch_page("value_filtering")
+        with wranglingRow1[1]:
+            if st.button("Column renaming", key=10):
+                st.session_state['y'] = 0
+                switch_page("column_renaming")
+        with wranglingRow2[0]:
+            if st.button("Column splitting", key=11):
+                st.session_state['avoid'] = 0
+                st.session_state['y'] = 0
+                switch_page("column_splitting")
+        with wranglingRow2[1]:
+            if st.button("Columns merging", key=13):
+                st.session_state['y'] = 0
+                switch_page("column_merging")
 st.subheader("Dataset")
 st.write(df)

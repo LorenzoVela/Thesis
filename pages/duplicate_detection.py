@@ -60,7 +60,7 @@ def clean10 ():
 
 def cleanHome ():
     slate2.empty()
-    switch_page("Homepage")
+    st.session_state['y'] = 3
 
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
@@ -77,9 +77,9 @@ body2 = slate2.container()
 with body1:
     if st.session_state['y'] == 0:
         setColToDropWeights = set()
-        with st.expander("Expand to understand more over the technique that is being used to detect duplicates", expanded=False):
+        with st.expander("Expand to understand more over the techniques that are used to detect duplicates and calculate the smilarity between two rows.", expanded=False):
             st.write(f"The technique that is being used for the **record linkage** is the blocking technique. The dataset will be partioned in blocks, in this case a block will be composed by tuples that have the same values for the attribute/s selected below.")
-            st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences. In this case the algorithm is slightly modified: to calculate the similarity between two rows every attribute can have a weight between 0 and 2.")
+            st.write(f"For the **similarity** is being used the jaro-winkler metric. Is a string edit distance between two sequences. In this case the algorithm is slightly modified: to calculate the similarity between two rows won't be used the blocking atributes and the attributes explicitly remove with the appropriate box. With the remaining attributes, in case their box is checked they'll have weight = 2, in the meanwhile the unchecked ones will have weight = 1. Then to calculate the similarity a weighted average will be calculated.")
         listCol = df.columns
         colToDrop = st.multiselect("Select one or more columns that will be used to match possible duplicates", listCol, key="multiselect")
     #threshold selection, would be nice with a slider -> pay attention to the refresh(could be better to use the stremlit one)
@@ -112,23 +112,29 @@ with body1:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values, the columns with a different value for each row")
-                colToDropWeights = st.multiselect("Select one or more additional column that won't be used as weight to calculate the string similarity", setCompareTemp)    
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values and the columns with a different value for each row")
+                colToDropWeights = st.multiselect("Select one or more additional column that won't be used to calculate the similarity between the two rows", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
                     setCompare = [x for x in setCompareTemp if x not in setColToDropWeights]
                 else:
                     setCompare = setCompareTemp
                 st.markdown("---")
-                st.subheader("Select the weights")
+                st.subheader("Select the most important attributes")
+                #st.write("")
+                st.info("The selected attributes will have a doubled weight with respect to the unselected ones. In case nothing is selected, every attribute will have the same weight")
                 st.write("")
                 #st.write("setCompareTemp", setCompareTemp,"setCompare", setCompare,"setCol", setColToDropWeights)
                 columnsWeight = st.columns([1 for i in range(len(setCompare))], gap="small")
                 for i in range(len(setCompare)):
                     with columnsWeight[i]:
                         label = str(setCompare[i])
-                        weight = st.number_input(label, 0.0, 100.0, 1.0, 0.25)
-                        weights.append([weight, label])
+                        #weight = st.number_input(label, 0.0, 100.0, 1.0, 0.25)
+                        if st.checkbox(f"**{label}**", key=i):
+                            weights.append([2, label])
+                        else:
+                            weights.append([1, label])
+                        #weights.append([weight, label])
                 st.markdown("---")
                 threshold = st.slider("Select a similarity threshold above to display the pairs of possible duplicate rows", 0.01, 1.00, value=0.9, step=0.01)
                 if threshold < 0.9:
@@ -160,7 +166,7 @@ with body2:
         setCompare = st.session_state['setCompare']
         threshold = st.session_state['threshold']
         weights = st.session_state['weights']
-        #st.write(weights)
+        st.write(weights)
         #st.write(setCompare)
         i = 0
         count = 0
@@ -212,15 +218,16 @@ with body2:
                             else:
                                 flag = "NO"
                                 break
-                        #st.write(f"**{flag}**  {result}")
+                        st.write(f"**{flag}**  {result}")
                         if flag == "YES":
+                            st.write(df.iloc[[item[1], item[0]]])
                             df.loc[item[0], setCompare] = [result[col] for col in setCompare]
                             st.write("The two previous rows will be replaced with this one. No information is lost")
-                            st.write(df.iloc[[item[0]]])
+                            #st.write(df.iloc[[item[0]]])
                             df.drop([item[1]], axis=0, inplace=True)
                             changed += 1
-            #if i == 40:
-            #    break
+            if i == 100:
+                break
             st.markdown("---")
         st.write(changed)
         st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
@@ -233,6 +240,11 @@ if st.session_state['y'] == 2:
     st.session_state.multiselect = []
     st.experimental_rerun()
 
+if st.session_state['y'] == 3:
+    switch_page("Homepage")
+
 st.markdown("---")
 if st.button("Homepage", on_click=cleanHome):
     ()
+    #slate2.empty()
+    #switch_page("Homepage")
