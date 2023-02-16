@@ -54,6 +54,12 @@ def clean1 ():
     slate1.empty()
     st.session_state['y'] = 1
 
+def clean4 ():
+    slate2.empty()
+    st.session_state['y'] = 4
+    st.session_state['Once'] = True
+    st.experimental_rerun()
+
 def clean10 ():
     slate1.empty()
     st.session_state['y'] = 2
@@ -166,14 +172,14 @@ with body2:
         setCompare = st.session_state['setCompare']
         threshold = st.session_state['threshold']
         weights = st.session_state['weights']
-        st.write(weights)
+        dfPreview = st.session_state['df'].copy()
+        #st.write(weights)
         #st.write(setCompare)
         i = 0
         count = 0
         changed = 0
         for item in candidate_links:
             i += 1
-            st.write([item[0]], len(df.index))
             row1Null = df.iloc[item[0]].isna().sum(axis=0)
             row2Null = df.iloc[item[1]].isna().sum(axis=0)
             jaroNum = 0
@@ -187,17 +193,16 @@ with body2:
             #st.write("Sum of all the weights" , totalWeight)
             sim = jaroNum/totalWeight
             st.write("Similarity of couple ", i, " is ", sim)
+            st.write(df.iloc[[item[1], item[0]]])
             if sim == 1:
                 st.write(df.iloc[[item[1], item[0]]])
                 count += 1
+                changed += 1
                 st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
-                df.drop([item[0]], axis=0, inplace=True)
+                dfPreview.drop([item[0]], axis=0, inplace=True)
             elif sim >= threshold:     #with 0.7 -> 40second
-                st.write(df.iloc[[item[1], item[0]]])
+                #st.write(df.iloc[[item[1], item[0]]])
                 count += 1
-                #st.write(df.iloc[[item[0]]][setCompare])
-                #st.write("Null values in row 1 ", row1Null)
-                #st.write("Null values in row 2 ", row2Null)
                 if (row1Null + row2Null) > 0:
                     if drop:
                         result = {}
@@ -208,32 +213,35 @@ with body2:
                         for attr in setCompare:
                             if str(row1[attr]) in ['<NA>', 'nan']:
                                 result[attr] = row2[attr]
-                                #st.write(result[attr], "row1 was null")
                             elif str(row2[attr]) in ['<NA>', 'nan']:
                                 result[attr] = row1[attr]
-                                #st.write(result[attr], "row2 was null")
                             elif str(row1[attr]) == str(row2[attr]):
                                 result[attr] = row1[attr]
-                                #st.write(result[attr], "None of them was null")
                             else:
                                 flag = "NO"
                                 break
-                        st.write(f"**{flag}**  {result}")
                         if flag == "YES":
-                            st.write(df.iloc[[item[1], item[0]]])
-                            df.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                            st.write(result)
+                            dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
                             st.write("The two previous rows will be replaced with this one. No information is lost")
-                            #st.write(df.iloc[[item[0]]])
-                            df.drop([item[1]], axis=0, inplace=True)
+                            st.write(dfPreview.iloc[[item[0]]])
+                            dfPreview.drop([item[1]], axis=0, inplace=True)
                             changed += 1
-            if i == 100:
+            if i == 70:
                 break
             st.markdown("---")
-        st.write(changed)
         st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
         st.write("")
-        if st.button("Back",on_click=clean0):
-            ()
+        columns1 = st.columns([1,10,1], gap='small')
+        dfPreview = dfPreview.reset_index(drop=True)
+        st.write(dfPreview)
+        st.session_state['dfPreview'] = dfPreview
+        with columns1[0]:
+            if st.button("Save!",on_click=clean4):
+                ()
+        with columns1[2]:
+            if st.button("Back",on_click=clean0):
+                ()
 
 if st.session_state['y'] == 2:
     st.session_state['y'] = 0
@@ -243,6 +251,12 @@ if st.session_state['y'] == 2:
 if st.session_state['y'] == 3:
     switch_page("Homepage")
 
+if st.session_state['y'] == 4:
+    tempdf = st.session_state['dfPreview']
+    if st.session_state['Once']:
+        with st.spinner("Please wait while the new dataset is profiled again.."):
+            profileAgain(tempdf)
+    switch_page("Homepage")
 st.markdown("---")
 if st.button("Homepage", on_click=cleanHome):
     ()
