@@ -68,6 +68,8 @@ def cleanHome ():
     slate2.empty()
     st.session_state['y'] = 3
 
+
+
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 profile = st.session_state['profile']
@@ -203,7 +205,7 @@ with body2:
             elif sim >= threshold:     #with 0.7 -> 40second
                 #st.write(df.iloc[[item[1], item[0]]])
                 count += 1
-                if (row1Null + row2Null) > 0:
+                if (row1Null + row2Null) >= 0:
                     if drop:
                         result = {}
                         row1 = df.iloc[item[0]]
@@ -227,6 +229,8 @@ with body2:
                             st.write(dfPreview.iloc[[item[0]]])
                             dfPreview.drop([item[1]], axis=0, inplace=True)
                             changed += 1
+                        else:
+                            droppedRow = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
             if i == 70:
                 break
             st.markdown("---")
