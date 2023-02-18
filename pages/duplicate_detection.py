@@ -197,11 +197,14 @@ with body2:
             st.write("Similarity of couple ", i, " is ", sim)
             st.write(df.iloc[[item[1], item[0]]])
             if sim == 1:
-                st.write(df.iloc[[item[1], item[0]]])
-                count += 1
-                changed += 1
-                st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
-                dfPreview.drop([item[0]], axis=0, inplace=True)
+                #st.write(df.iloc[[item[1], item[0]]])
+                try:
+                    count += 1
+                    changed += 1
+                    st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
+                    dfPreview.drop([item[0]], axis=0, inplace=True)
+                except:
+                    ()
             elif sim >= threshold:     #with 0.7 -> 40second
                 #st.write(df.iloc[[item[1], item[0]]])
                 count += 1
@@ -223,21 +226,24 @@ with body2:
                                 flag = "NO"
                                 break
                         if flag == "YES":
-                            st.write(result)
-                            dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
-                            st.write("The two previous rows will be replaced with this one. No information is lost")
-                            st.write(dfPreview.iloc[[item[0]]])
-                            dfPreview.drop([item[1]], axis=0, inplace=True)
-                            changed += 1
+                            try:
+                                dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                                st.write("The two previous rows will be replaced with this one. No information is lost")
+                                st.write(dfPreview.iloc[[item[0]]])
+                                dfPreview.drop([item[1]], axis=0, inplace=True)
+                                changed += 1
+                            except:
+                                ()
                         else:
                             droppedRow = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
-            if i == 70:
-                break
+            #if i == 70:
+            #    break
             st.markdown("---")
         st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
         st.write("")
         columns1 = st.columns([1,10,1], gap='small')
         dfPreview = dfPreview.reset_index(drop=True)
+        st.subheader("New dataset preview")
         st.write(dfPreview)
         st.session_state['dfPreview'] = dfPreview
         with columns1[0]:

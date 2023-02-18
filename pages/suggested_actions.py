@@ -41,6 +41,13 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
+e = st.markdown("""
+<style>
+div[data-testid="stExpander"] div[role="button"] p {
+    font-size: 1rem;
+}
+</style>""", unsafe_allow_html=True)
+
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 profile = st.session_state['profile']
@@ -99,7 +106,7 @@ for y in range(0, len(phik_df.columns)):
 
 with body1:
     if st.session_state['y'] == 0:
-        with st.expander("Dataset preview", expanded=False):
+        with st.expander("Dataset preview", expanded=True):
             st.write(df.head(100))
         with st.expander("Incomplete Rows", expanded=True):
             colNum = len(df.columns)
@@ -135,7 +142,8 @@ with body1:
                         else:
                             x = 1
                             y = 0
-                        strDropCorr =f"Columns **{correlationList[i][0]}** and  **{correlationList[i][1]}** are highly correlated. You're suggested to drop **{correlationList[i][x]}** given the other correlation parameters between all the columns"
+                        corr = float(phik_df[correlationList[i][0]][correlationList[i][1]])*100
+                        strDropCorr =f"Columns **{correlationList[i][0]}** and  **{correlationList[i][1]}** are highly correlated (" + "%0.2f" %(corr) + f"%). You're suggested to drop **{correlationList[i][x]}** given the other correlation parameters between all the columns"
                         st.info(strDropCorr)
                         choice = st.radio("Select below", ["None", correlationList[i][0], correlationList[i][1]], index=0)
                         if choice != "None":    

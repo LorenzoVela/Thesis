@@ -36,7 +36,10 @@ def uploading_csv():
     uploaded_file = st.file_uploader("Choose a file")
     if uploaded_file is not None:
         st.session_state['filename'] = str(uploaded_file.name)
-        df = pd.read_excel(uploaded_file)
+        if ".csv" in uploaded_file.name:
+            df = pd.read_csv(uploaded_file)
+        else:
+            df = pd.read_excel(uploaded_file)
         return df
     else:
         ()
