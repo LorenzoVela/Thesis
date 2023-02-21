@@ -194,19 +194,22 @@ with body2:
             #st.write("Sum of all the wighted similarities", jaroNum)
             #st.write("Sum of all the weights" , totalWeight)
             sim = jaroNum/totalWeight
-            st.write("Similarity of couple ", i, " is ", sim)
-            st.write(df.iloc[[item[1], item[0]]])
+            #st.write("Similarity of couple ", i, " is ", sim)
+            #st.write(df.iloc[[item[1], item[0]]])
             if sim == 1:
-                #st.write(df.iloc[[item[1], item[0]]])
+                st.write(df.iloc[[item[1], item[0]]])
                 try:
                     count += 1
                     changed += 1
                     st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
                     dfPreview.drop([item[0]], axis=0, inplace=True)
+
                 except:
                     ()
+                st.markdown("---")
             elif sim >= threshold:     #with 0.7 -> 40second
-                #st.write(df.iloc[[item[1], item[0]]])
+                st.write("Similarity of couple ", i, " is ", sim)
+                st.write(df.iloc[[item[1], item[0]]])
                 count += 1
                 if (row1Null + row2Null) >= 0:
                     if drop:
@@ -235,11 +238,12 @@ with body2:
                             except:
                                 ()
                         else:
-                            droppedRow = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
+                            ()
+                            #droppedRow = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
             #if i == 70:
             #    break
-            st.markdown("---")
-        st.info(f"There are **{count}** couples of rows that have a similarity equal or higher to the threshold of {threshold}")
+                st.markdown("---")
+        st.info(f"**{changed}** rows in {count} couples were dropped.")
         st.write("")
         columns1 = st.columns([1,10,1], gap='small')
         dfPreview = dfPreview.reset_index(drop=True)

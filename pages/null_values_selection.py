@@ -40,14 +40,17 @@ with st.expander("", expanded=True):
     #column = st.multiselect("Replace all the values with", dfCol)
     if column != None:
         nullNum = df[column].isna().sum()
-        percentageNull = nullNum/len(df.index)*100
-        st.write("This column has ", nullNum, " null values (" + "%0.2f" %(percentageNull) + "%)")
-        st.write("If you want to proceed click next, otherwise you can either select another column or come back to the Homepage")
-        if st.button("Next"):
-            st.session_state['from'] = 1
-            st.session_state['y'] = 0
-            st.session_state['arg'] = df[column].copy(deep=False)
-            switch_page("null_values")
+        if nullNum > 0:
+            percentageNull = nullNum/len(df.index)*100
+            st.write("This column has ", nullNum, " null values (" + "%0.2f" %(percentageNull) + "%)")
+            st.write("If you want to proceed click next, otherwise you can either select another column or come back to the Homepage")
+            if st.button("Next"):
+                st.session_state['from'] = 1
+                st.session_state['y'] = 0
+                st.session_state['arg'] = df[column].copy(deep=False)
+                switch_page("null_values")
+        else:
+            st.error("This column doesn't have any null values, select another column.")
 with st.expander("", expanded=True):
     if column == None:
         st.info("If you want to replace all the null values of the dataset in 2 click, select here with which value")

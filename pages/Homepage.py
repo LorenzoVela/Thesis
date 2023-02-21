@@ -116,3 +116,9 @@ with pageCol[2]:
                 switch_page("column_merging")
 st.subheader("Dataset")
 st.write(df)
+st.write("---")
+if st.button("Change dataset"):
+    st.warning("If you don't have downloaded the modified dataset you'll lose all the changes applied.")
+    if st.button("Proceed"):
+        st.session_state['x'] = 0
+        switch_page("upload")

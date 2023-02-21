@@ -215,7 +215,8 @@ with body:
                         dfAutomatic = dfAutomatic.drop(col, axis=1)
                 st.markdown("---")
         for col in dfAutomatic.columns:
-            nullNum = dfAutomatic[col].isna().sum() + randint(1,200)
+            nullNum = dfAutomatic[col].isna().sum()
+            distinct = dfAutomatic[col].nunique()
             percentageNull = nullNum/len(df.index)*100
             if percentageNull > 1:
                 if dfAutomatic[col].dtype == "object":  #automatically fill with the mode
@@ -240,7 +241,7 @@ with body:
                 elif x == 1:
                     avgValue = "{:.2f}".format(report["variables"][col]["mean"])
                     dfAutomatic[col].fillna(round(round(float(avgValue))), inplace=True)
-                    strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the average value: {avgValue}"
+                    strFillAutomaticConfirmed = f"Successfully replaced all the {nullNum} (" + str("%0.2f" %(percentageNull)) + f"%) null values of the column **{col}** with the average value: {round(float(avgValue))}"
                     explanationWhy = "Unfortunately the column had a lot of null values. In order to influence less as possible the average value of this attribute, the mean is one of the best solution for the replacement. In the null values page you'll have the possibility also to choose other values. If you want so, remind to rollback this change in order to still have the null values in your dataset."
                 if x == 0 or x == 1:
                     droppedList.append(["nullReplaced", col, dfAutomatic[col]])
@@ -250,7 +251,8 @@ with body:
                     st.success(strFillAutomaticConfirmed)
                     with st.expander("Why I did it?"):
                         st.write(explanationWhy)
-                        if st.checkbox(strFillAutomaticRollback, key=nullNum) == True:
+                        k = nullNum + distinct
+                        if st.checkbox(strFillAutomaticRollback, key=k) == True:
                             droppedList = droppedList[ : -1]
                         else:
                             if x == 0:
