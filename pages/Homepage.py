@@ -48,6 +48,7 @@ with pageCol[0]:
         profilingRow2 = st.columns([1,1,1])
         with profilingRow1[0]:
             if(st.button("Profiling", key=1)):
+                st.session_state['Once'] = True
                 switch_page("profiling")
         with profilingRow1[1]:
             if st.button("Dataset Info", key=2):
