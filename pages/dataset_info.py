@@ -13,7 +13,6 @@ from streamlit_extras.stoggle import stoggle
 from random import *
 import os
 import streamlit_nested_layout
-import webbrowser
 
 
 def profileAgain(df):
@@ -66,7 +65,6 @@ with st.expander("Incomplete Rows", expanded=False):
     for i in range(len(nullList)):
         if nullList[i] >= threshold:
             nullToDelete.append(i)
-    #st.write()
     if len(nullToDelete) > 0:
         notNullList = [i for i in rangeList if i not in nullToDelete]
         dfToDelete.drop(notNullList, axis=0, inplace=True)
@@ -74,7 +72,7 @@ with st.expander("Incomplete Rows", expanded=False):
         infoStr = "This dataset has " + str(len(nullToDelete)) + " rows (" + str("%0.2f" %(percentageNullRows)) + "%) that have at least " + str(threshold) + " null values out of " + str(len(df.columns))
         st.info(infoStr)
         st.subheader("Preview")
-        st.dataframe(dfToDelete.head(50))
+        st.dataframe(dfToDelete)
         if st.button("Drop these rows from the dataset", key=-1):
             st.session_state['toBeProfiled'] = True
             df.drop(nullToDelete, axis=0, inplace=True)
@@ -148,7 +146,7 @@ with colMain1:
             st.write("Unique values: ", columnUnique)
             if columnUnique != "Not available":
                 st.write("Percentage of unique values: ","%0.2f" %(percentageUnique) + "%")
-                if percentageUnique > 90:
+                if percentageUnique > 95:
                     st.warning("This attribute is a possible candidate for primary key!")
             count += 1
 
@@ -169,14 +167,11 @@ with colMain1:
                     if st.checkbox("Show sample", key=name_counter):
                         st.write("Here are shown the first 30 lines of the two columns")
                         st.write(df[[col, col1]].head(30))
-                #if col != col1:
-                #    x = jellyfish.jaro_distance(col, col1)
-                #    if x >= 0.7:
-                #        st.write("Jaro distance between " + col + " and " + col1 + " is ", x)
+
     with st.expander("Possible redundancies in the data"):
         st.warning("As sample for this test has been used the first 10 " + "%" + "of the dataset.")
         length = round(len(df.index)/10)
-        limit = round(length * 60 / 100)
+        limit = round(length * 90 / 100)
         data_counter = df.size
         for col in dfCol:
             for col1 in dfCol:
@@ -218,14 +213,14 @@ with colMain1:
     with st.expander("What does the correlation between two columns means?"):
         st.write("The correlation between two columns is defined as how much values of a column are related with values of another column. In other words we can explain it as: given the value of the column X, with how much confidence I can guess the value on column Y, given also the previous observations of X->Y?")
     ind = 1
-    st.subheader("List of the correlations that are higher than 60%")
+    st.subheader("List of the correlations that are higher than 85%")
     corrButton = name_counter + 1
     correlationList = []
     for col in phik_df.columns:
         if ind < (len(phik_df.columns) - 1):
             for y in range(ind, len(phik_df.columns)):
                 x = float(phik_df[col][y])*100
-                if x > 60:
+                if x > 85:
                     col1, col2, col3 = st.columns([2, 1.5, 6], gap="small")
                     with col1:
                         #st.write(f"Column name is ")
