@@ -6,6 +6,10 @@ import streamlit as st
 import random
 from streamlit_extras.switch_page_button import switch_page
 from streamlit_extras.no_default_selectbox import selectbox
+import os
+import pandas_profiling
+from pandas_profiling import *
+import json
 
 
 m = st.markdown("""
@@ -26,6 +30,29 @@ st.markdown(
         """,
     unsafe_allow_html=True
 )
+
+def profileAgain(df):
+    if os.path.exists("newProfile.json"):
+        os.remove("newProfile.json")
+    profile = ProfileReport(df)
+    profile.to_file("newProfile.json")
+    with open("newProfile.json", 'r') as f:
+        report = json.load(f)
+    st.session_state['profile'] = profile
+    st.session_state['report'] = report
+    st.session_state['df'] = df
+    newColumns = []
+    for item in df.columns:
+        newColumns.append(item)
+    st.session_state['dfCol'] = newColumns
+
+def save ():
+    df = st.session_state['dataset']
+    if st.session_state['Once']:
+        with st.spinner("Please wait while the new dataset is profiled again.."):
+            profileAgain(df)
+    st.session_state['Once'] = False
+    switch_page("Homepage")
 
 
 profile = st.session_state['profile']
@@ -112,8 +139,14 @@ with st.expander("", expanded=True):
                 st.write("Missing values after the filling: ", nullAfter)
             st.write(copyPreview)
             st.session_state['dataset'] = copyPreview.copy()
+            st.session_state['Once'] = True
             if st.button("Save"):
-                ()
+                df = st.session_state['dataset']
+                if st.session_state['Once']:
+                    with st.spinner("Please wait while the new dataset is profiled again.."):
+                        profileAgain(df)
+                st.session_state['Once'] = False
+                switch_page("Homepage")
 
                 #st.session_state['y'] = 
                 #reload the page, profile again the dataset -> done

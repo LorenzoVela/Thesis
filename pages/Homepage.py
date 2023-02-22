@@ -6,6 +6,7 @@ import time
 import pandas as pd
 import numpy as np
 from streamlit_extras.switch_page_button import switch_page
+from streamlit_extras.stateful_button import button
 import streamlit_nested_layout
 
 st.set_page_config(page_title="Homepage", layout="wide", initial_sidebar_state="collapsed")
@@ -117,7 +118,7 @@ with pageCol[2]:
 st.subheader("Dataset")
 st.write(df)
 st.write("---")
-if st.button("Change dataset"):
+if button("Change dataset", key="changedataset"):
     st.warning("If you don't have downloaded the modified dataset you'll lose all the changes applied.")
     if st.button("Proceed"):
         st.session_state['x'] = 0

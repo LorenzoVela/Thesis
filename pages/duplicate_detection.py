@@ -243,7 +243,7 @@ with body2:
             #if i == 70:
             #    break
                 st.markdown("---")
-        st.info(f"**{changed}** rows in {count} couples were dropped.")
+        st.info(f"Above the similarity threshold of {threshold}, there were {count} couples of similar rows to display. Out of these **{changed}** rows were dropped.")
         st.write("")
         columns1 = st.columns([1,10,1], gap='small')
         dfPreview = dfPreview.reset_index(drop=True)
