@@ -114,7 +114,8 @@ with body1:
                 for i in range(0,10):
                     if df[col].dtype == "float64" or df[col].dtype == "Int64":
                         break
-                    elif " " in df[col][i] :
+                    #elif " " in df[col][i] :
+                    else:
                         columnsFiltered.append(col)
                         break
             column = st.selectbox("Select the column to be splitted", columnsFiltered)
@@ -163,7 +164,12 @@ with body1:
                 st.info(infoString)
                 if len(string) == 1:
                     st.error("It's not possible to split this column")
+                
                 else:
+                    if len(string[0]) == 0:
+                        string[0] = None
+                    if len(string[1]) == 0:
+                        string[1] = None
                     data = [string]
                     st.write(f"One-line preview of the first splittable row, **you're strongly recommended to do not apply splitting to numeric columns**")
                     oneLinePreview = pd.DataFrame(data, columns=['First column', 'Second column'])
@@ -219,14 +225,18 @@ with body2:
             if item[3] in str(dfPreview[item[0]][i]):
                 splitted = str(dfPreview[item[0]][i]).split(item[3], 1)
                 valFirst.append(splitted[0])
-                valSecond.append(splitted[1])
+                if len(splitted[1]) == 0:
+                    valSecond.append(None)
+                else:
+                    valSecond.append(splitted[1])
             elif item[4] == 1: #copy in the first col and null in the second column
                 valFirst.append(dfPreview[item[0]][i])
-                valSecond.append("nan")
+                valSecond.append(None)
             elif item[4] == 2: #copy in the second column
-                valFirst.append("nan")
+                valFirst.append(None)
                 valSecond.append(dfPreview[item[0]][i])
         #ser = pd.Series(list)
+        #st.write(valSecond)
         dfPreview.insert(loc=colIndex, column = str(item[1]), value=valFirst)
         dfPreview.insert(loc=(colIndex+1), column = str(item[2]), value=valSecond)
         dfPreview.drop(item[0], inplace=True, axis=1)

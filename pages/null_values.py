@@ -325,8 +325,8 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 11: #Replace num with 0 value
         copyPreview = dfCol.copy()
-        nullCount = copyPreview.isna().sum
-        infoString = "Replaced " + nullCount + " missing values with value 0"
+        nullCount = copyPreview.isna().sum()
+        infoString =f"Replaced {nullCount} missing values with value 0"
         st.info(infoString)
         copyPreview.replace([np.nan], 0,inplace=True)
         col1_11, col2_11 = st.columns(2)

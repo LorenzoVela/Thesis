@@ -145,7 +145,7 @@ with body1:
                         corr = float(phik_df[correlationList[i][0]][correlationList[i][1]])*100
                         strDropCorr =f"Columns **{correlationList[i][0]}** and  **{correlationList[i][1]}** are highly correlated (" + "%0.2f" %(corr) + f"%). You're suggested to drop **{correlationList[i][x]}** given the other correlation parameters between all the columns"
                         st.info(strDropCorr)
-                        choice = st.radio("Select below", ["None", correlationList[i][0], correlationList[i][1]], index=0)
+                        choice = st.radio("Select below the column to be dropped", ["None", correlationList[i][0], correlationList[i][1]], index=0)
                         if choice != "None":    
                             droppedList.append(["column", choice])
                         st.markdown("---")
@@ -157,7 +157,8 @@ with body1:
                 with st.expander("Useless column", expanded=True):
                     strDropUnique = f"The column **{col}** has the same value for all the rows (that is '{df[col][1]}'). You're suggested to drop it because it doesn't add any information to the dataset"
                     st.info(strDropUnique)
-                    choice1 = st.radio("Select below", ["Keep the column", "Drop the column"], index=0)
+                    key1 = hash(strDropUnique)
+                    choice1 = st.radio("Select below", ["Keep the column", "Drop the column"], index=0, key=key1)
                     if choice1 != "Keep the column":
                         droppedList.append(["column", col])
 
@@ -243,9 +244,9 @@ with body2:
                 for item in st.session_state['droppedList']:
                     if item[0] == "rows":
                         dfPreview.drop(item[1], axis=0, inplace=True)
-                    elif item[0] == "column":
+                    elif item[0] == "column" and item[1] in dfPreview.columns:
                         #if str(item[1]) in dfPreview:
-                        dfPreview = dfPreview.drop(item[1], axis=1)
+                        dfPreview.drop(item[1], axis=1, inplace=True)
 
                     elif item[0] == "nullReplacedNum":
                         col = item[1]
@@ -282,7 +283,7 @@ with body2:
                 elif item[0] == "Redundancy":
                     string = f"-  Removed from column **{item[1][1]}** the information that was present also in column **{item[1][0]}**"
                     st.write(string)
-        st.write(dfPreview.head(50))
+        st.write(dfPreview)
         st.warning("This action will be permanent")
         col1, col2, col3 = st.columns([1,1,10], gap='small')
         st.session_state['newdf'] = dfPreview.copy()

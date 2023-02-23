@@ -129,6 +129,7 @@ with body1:
                             colIndex -= 1
                         dfPreview = df.copy()
                         dfColPreview = pd.Series()
+                        #IF NOT NULL
                         dfColPreview = dfPreview[column1].astype(str) + " " + dfPreview[column2].astype(str)
                         dfPreview.drop(column1, inplace=True, axis=1)
                         dfPreview.drop(column2, inplace=True, axis=1)
