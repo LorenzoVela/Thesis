@@ -149,7 +149,7 @@ with st.expander("Values replacer"):
         col1_1, col1_2 = st.columns(2)
         with col1_1:
             st.write("Old column")
-            st.write(dfCol.head(50))
+            st.write(dfCol)
             
         with col1_2:
             indexList = []
@@ -169,7 +169,7 @@ with st.expander("Values replacer"):
             #st.write(indexList)
             st.session_state['dfColCopy'] = dfColCopy
             st.write("New column")
-            st.dataframe(dfColCopy.head(50).to_frame().style.apply(lambda x: ['background-color: lightgreen' if (indexList.count(x.name))else '' for i in x], axis=1))
+            st.dataframe(dfColCopy.to_frame().style.apply(lambda x: ['background-color: lightgreen' if (indexList.count(x.name))else '' for i in x], axis=1))
             #st.write(dfColCopy.head(20))
             newDistinctList = pd.unique(dfColCopy)
             newDistinctNum = len(newDistinctList)

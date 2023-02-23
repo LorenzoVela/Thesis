@@ -303,7 +303,7 @@ with body:
         st.info("No other actions to be perfomed")
         st.markdown("---")
         st.subheader("New dataset real time preview")
-        st.write(dfAutomatic.head(50))
+        st.write(dfAutomatic)
         st.session_state['newdf'] = dfAutomatic.copy()
         st.info("If you see columns with poor information you've the chance to drop them. Remind that you're also applying *permanently* all the changes above.")
         colSave, colSaveDrop, colIdle = st.columns([1,1,8], gap='small')

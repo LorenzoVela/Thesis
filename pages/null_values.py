@@ -132,7 +132,9 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
 
     elif st.session_state['y'] == 3: #drop confirmed
-        df.drop[dfCol.name]
+        #st.write(dfCol.name)
+        if st.session_state['toBeProfiled'] == True:
+            df.drop([dfCol.name], axis=1, inplace=True)
         successMessage = st.empty()
         st.subheader("Preview")
         st.write(df.head(50))
