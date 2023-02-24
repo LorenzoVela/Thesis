@@ -144,7 +144,7 @@ with col2:
                     for y in range(0, len(phik_df.index)):
                         if phik_df.columns[y] != col:
                             x = float(phik_df[col][y])*100
-                            if x > 60:
+                            if x > 85:
                                 st.write(f"Correlation with **{str(phik_df.columns[y])}**  is: ", "%0.2f" %(x) , "%")
                                 st.write("")
                                 corrList.append([phik_df.columns[y], x])
