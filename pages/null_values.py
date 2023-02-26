@@ -62,7 +62,7 @@ nullNum = dfCol.isna().sum()
 percentageNull = nullNum/len(dfCol.index)*100
 with col1_1:
     st.subheader("Preview")
-    st.write(dfCol.head(20))
+    st.write(dfCol)
 with col3_1:
     st.write("")
     st.write("")
@@ -137,7 +137,7 @@ with st.expander("", expanded=True):
             df.drop([dfCol.name], axis=1, inplace=True)
         successMessage = st.empty()
         st.subheader("Preview")
-        st.write(df.head(50))
+        st.write(df)
         successMessage.success("Column dropped successfully! Please wait while the dataframe is profiled again..")
         if st.session_state['toBeProfiled'] == True:
             profileAgain(df)
@@ -150,10 +150,10 @@ with st.expander("", expanded=True):
         col1_4, col2_4 = st.columns(2)
         with col1_4:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_4:
             st.write("New column")
-            st.write(copyPreview.head(30)) 
+            st.write(copyPreview) 
         radio4 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 4)
         if  radio4 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -173,10 +173,10 @@ with st.expander("", expanded=True):
         col1_5, col2_5 = st.columns(2)
         with col1_5:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_5:
             st.write("New column")
-            st.write(copyPreview.head(30)) 
+            st.write(copyPreview) 
         radio5 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 5)
         if  radio5 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -203,10 +203,10 @@ with st.expander("", expanded=True):
         col1_6, col2_6 = st.columns(2)
         with col1_6:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_6:
             st.write("New column")
-            st.write(copyPreview.head(30)) 
+            st.write(copyPreview) 
         radio6 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 6)
         if  radio6 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -228,10 +228,10 @@ with st.expander("", expanded=True):
             col1_7, col2_7 = st.columns(2)
             with col1_7:
                 st.write("Old column")
-                st.write(dfCol.head(30))
+                st.write(dfCol)
             with col2_7:
                 st.write("New column")
-                st.write(copyPreview.head(30)) 
+                st.write(copyPreview) 
             radio7 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 7)
             if  radio7 == "Yes":
                 st.session_state['toBeProfiled'] = True
@@ -254,10 +254,10 @@ with st.expander("", expanded=True):
         col1_8, col2_8 = st.columns(2)
         with col1_8:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_8:
             st.write("New column")
-            st.write(copyPreview.head(30))
+            st.write(copyPreview)
         radio8 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 8)
         if  radio8 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -273,17 +273,17 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 9: #Replace num with avg value
         copyPreview = dfCol.copy()
-        avgValue = report["variables"][dfCol.name]["mean"]
-        avgValue2 = "{:.2f}".format(avgValue)
+        avgValue = int(round(report["variables"][dfCol.name]["mean"]))
+        avgValue2 = str(avgValue)
         st.info("Replaced all the missing values with the average: " + avgValue2)
-        copyPreview.replace([np.nan], avgValue2,inplace=True)
+        copyPreview.replace([np.nan], avgValue,inplace=True)
         col1_9, col2_9 = st.columns(2)
         with col1_9:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_9:
             st.write("New column")
-            st.write(copyPreview.head(30))
+            st.write(copyPreview)
         radio9 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 9)
         if  radio9 == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -332,10 +332,10 @@ with st.expander("", expanded=True):
         col1_11, col2_11 = st.columns(2)
         with col1_11:
             st.write("Old column")
-            st.write(dfCol.head(30))
+            st.write(dfCol)
         with col2_11:
             st.write("New column")
-            st.write(copyPreview.head(30))
+            st.write(copyPreview)
         radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 11)
         if  radio == "Yes":
             st.session_state['toBeProfiled'] = True
@@ -362,9 +362,9 @@ with st.expander("", expanded=True):
         nullCount = str(dfCol.isnull().sum())
         df[dfCol.name] = dfCol.values
         st.subheader("Preview")
-        st.dataframe(df.head(50).style.applymap(color_survived, subset=[dfCol.name]))
+        st.dataframe(df.style.applymap(color_survived, subset=[dfCol.name]))
         #st.write(df.head(20))
-        successString = "Now the column has now " + nullCount + " null values! Please wait while the dataframe is profiled again.."
+        successString = "Now the column has " + nullCount + " null values! Please wait while the dataframe is profiled again.."
         successMessage.success(successString)
         if st.session_state['toBeProfiled'] == True:
             profileAgain(df)

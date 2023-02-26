@@ -83,7 +83,7 @@ if st.session_state['y'] == 0:
             for col in colToDrop:
                 dfPreview = dfPreview.drop(col, axis=1)
             st.subheader("Real time preview")
-            st.write(dfPreview.head(50))
+            st.write(dfPreview)
             if st.button("Save"):
                 st.session_state['newdf'] = dfPreview.copy()
                 st.session_state['y'] = 1
@@ -97,7 +97,7 @@ if st.session_state['y'] == 0:
         dfPreview = dfPreview.drop(col, axis=1)
         st.subheader("Preview")
         st.write("Dropped column ", col)
-        st.write(dfPreview.head(50))
+        st.write(dfPreview)
         if st.button("Save"):
                 st.session_state['newdf'] = dfPreview.copy()
                 st.session_state['y'] = 1

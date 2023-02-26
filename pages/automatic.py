@@ -287,7 +287,7 @@ with body:
                         time.sleep(1)
             st.success(strRemoveRedConfirmed)
             with st.expander("Why I did it?"):
-                st.write("explanation")
+                st.write("The two columns were partially representing the same instances. So the redundant information was dropped from the most complete column. This because it's usually best practise to do not aggregate too much information within only one column.")
                 if st.checkbox(strRemoveRedRollback, key=intk) == True:
                     droppedList = droppedList[ : -1]
                 else:

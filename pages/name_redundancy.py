@@ -75,7 +75,7 @@ if st.session_state['y'] == 0:
         st.write("")
         st.write("Would you like to drop on of these two columns? ")
         strDrop = "Drop " + dfCol.name
-        strDrop1 = "Drop" + dfCol1.name
+        strDrop1 = "Drop " + dfCol1.name
         tab1, tab2, tab3, tab4 = st.tabs(["--", strDrop, strDrop1, "Do nothing"])
 
         with tab1: #default case for visualization's reasons, don't modify

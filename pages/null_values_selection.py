@@ -61,7 +61,7 @@ df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 
 st.title("Null values handling")
-with st.expander("", expanded=True):
+with st.expander("Single column perspective", expanded=True):
     st.write("In this page you're allowed to select a column in order to replace its null values. You can also decide to drop the entire column too.")
     column = selectbox("Choose a column", dfCol)
     #column = st.multiselect("Replace all the values with", dfCol)
@@ -69,7 +69,10 @@ with st.expander("", expanded=True):
         nullNum = df[column].isna().sum()
         if nullNum > 0:
             percentageNull = nullNum/len(df.index)*100
+            mask = df[column].isna()
+            preview = df[mask]
             st.write("This column has ", nullNum, " null values (" + "%0.2f" %(percentageNull) + "%)")
+            st.write(preview)
             st.write("If you want to proceed click next, otherwise you can either select another column or come back to the Homepage")
             if st.button("Next"):
                 st.session_state['from'] = 1
@@ -78,8 +81,15 @@ with st.expander("", expanded=True):
                 switch_page("null_values")
         else:
             st.error("This column doesn't have any null values, select another column.")
-with st.expander("", expanded=True):
+with st.expander("Dataset perspective", expanded=True):
     if column == None:
+        columnsNull = st.columns([1 for i in range(len(df.columns))], gap="small")
+        for i in range(len(df.columns)):
+            col = df.columns[i]
+            nullPercentage = df.iloc[:, i].isna().sum() / len(df.index) * 100
+            nullPercentageString = "{:.2f}".format(nullPercentage)
+            with columnsNull[i]:
+                st.write(f"**{col}**: {nullPercentageString}%")
         st.info("If you want to replace all the null values of the dataset in 2 click, select here with which value")
         col = st.columns([1,1,1.5])
         with col[0]:
@@ -88,7 +98,9 @@ with st.expander("", expanded=True):
             fillingOpNum = st.radio(f"Filling options for numeric columns :",("", "Min", "Max", "Avg", "0", "Mode"),index=0)
         if fillingOpNum != "" and fillingOpStr != "":
             copyPreview = df.copy()
+            k = 100
             for dfCol in df.columns:
+                k += 1
                 if df[dfCol].isna().sum() > 0:
                     #st.write(df[dfCol].isna().sum(), dfCol)
                     #st.write(str(df[dfCol].dtype), dfCol)
@@ -111,7 +123,7 @@ with st.expander("", expanded=True):
                                     st.write(copyPreview['DescrizioneVia'].isna().sum())
                                     st.error(f"For column **{dfCol}** is not possible to identify the mode value, no changes have been applied.")
                             elif fillingOpStr == "Custom Value":
-                                customValue = st.text_input("Please insert the custom value you want to use:")
+                                customValue = st.text_input(f"Please insert the custom value you want to use for column **{dfCol}**:", key=k)   
                                 if len(customValue) != 0:
                                     copyPreview[dfCol].fillna(customValue, inplace=True)
                         elif str(df[dfCol].dtype) == "float64" or str(df[dfCol].dtype) == "Int64":
@@ -133,7 +145,7 @@ with st.expander("", expanded=True):
             st.write("Missing values before the filling: ", report["table"]["n_cells_missing"], "(~", "%0.2f" %(nullBeforePercentage) + "%)")
             nullAfter = copyPreview.isna().sum().sum()
             if nullAfter > 0:
-                nullAfterPercentage = copyPreview.count().sum() / nullAfter * 100
+                nullAfterPercentage = nullAfter / df.size * 100
                 st.write("Missing values after the filling: ", nullAfter, "(~", "%0.2f" %(nullAfterPercentage) + "%)")
             else:
                 st.write("Missing values after the filling: ", nullAfter)
