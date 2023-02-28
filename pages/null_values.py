@@ -146,6 +146,7 @@ with st.expander("", expanded=True):
     
     elif st.session_state['y'] == 4: #Replace object with following value
         copyPreview = dfCol.copy()
+        dfPreview = df.copy()
         copyPreview.fillna(method="bfill", inplace=True)
         col1_4, col2_4 = st.columns(2)
         with col1_4:
@@ -153,8 +154,11 @@ with st.expander("", expanded=True):
             st.write(dfCol)
         with col2_4:
             st.write("New column")
-            st.write(copyPreview) 
-        radio4 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 4)
+            st.write(copyPreview)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview)  
+        radio4 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 4)
         if  radio4 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -169,6 +173,7 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 5: #Replace object with previous value
         copyPreview = dfCol.copy()
+        dfPreview = df.copy()
         copyPreview.fillna(method="ffill", inplace=True)
         col1_5, col2_5 = st.columns(2)
         with col1_5:
@@ -176,8 +181,11 @@ with st.expander("", expanded=True):
             st.write(dfCol)
         with col2_5:
             st.write("New column")
-            st.write(copyPreview) 
-        radio5 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 5)
+            st.write(copyPreview)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview) 
+        radio5 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 5)
         if  radio5 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -191,6 +199,7 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
 
     elif st.session_state['y'] == 6: #Replace object with mode value
+        dfPreview = df.copy()
         copyPreview = dfCol.copy()
         #st.write(stats.mode(copyPreview))
         try:
@@ -206,8 +215,11 @@ with st.expander("", expanded=True):
             st.write(dfCol)
         with col2_6:
             st.write("New column")
-            st.write(copyPreview) 
-        radio6 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 6)
+            st.write(copyPreview)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview) 
+        radio6 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 6)
         if  radio6 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -221,6 +233,7 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
 
     elif st.session_state['y'] == 7: #Replace object with custom value
+        dfPreview = df.copy()
         copyPreview = dfCol.copy()
         customValue = st.text_input("Please insert the custom value you want to use:")
         if len(customValue) != 0:
@@ -232,7 +245,10 @@ with st.expander("", expanded=True):
             with col2_7:
                 st.write("New column")
                 st.write(copyPreview) 
-            radio7 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 7)
+            st.subheader("Dataset preview")
+            dfPreview[dfCol.name] = copyPreview
+            st.write(dfPreview)
+            radio7 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 7)
             if  radio7 == "Yes":
                 st.session_state['toBeProfiled'] = True
                 st.session_state['copyPreview'] = copyPreview
@@ -246,6 +262,7 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
     
     elif st.session_state['y'] == 8: #Replace num with max value
+        dfPreview = df.copy()
         copyPreview = dfCol.copy()
         maxValue = report["variables"][dfCol.name]["max"]
         maxValue2 = "{:.2f}".format(maxValue)
@@ -258,7 +275,10 @@ with st.expander("", expanded=True):
         with col2_8:
             st.write("New column")
             st.write(copyPreview)
-        radio8 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 8)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview)
+        radio8 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 8)
         if  radio8 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -272,6 +292,7 @@ with st.expander("", expanded=True):
             st.experimental_rerun()
 
     elif st.session_state['y'] == 9: #Replace num with avg value
+        dfPreview = df.copy()
         copyPreview = dfCol.copy()
         avgValue = int(round(report["variables"][dfCol.name]["mean"]))
         avgValue2 = str(avgValue)
@@ -284,7 +305,10 @@ with st.expander("", expanded=True):
         with col2_9:
             st.write("New column")
             st.write(copyPreview)
-        radio9 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 9)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview)
+        radio9 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 9)
         if  radio9 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -299,6 +323,7 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 10: #Replace num with mode value
         copyPreview = dfCol.copy()
+        dfPreview = df.copy()
         strMode = str(copyPreview.mode()[0])
         infoString = "Replaced all the missing values with the mode value: " + strMode
         st.info(infoString)
@@ -310,7 +335,10 @@ with st.expander("", expanded=True):
         with col2_10:
             st.write("New column")
             st.write(copyPreview)
-        radio10 = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 10)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview) 
+        radio10 = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 10)
         if  radio10 == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -325,6 +353,7 @@ with st.expander("", expanded=True):
 
     elif st.session_state['y'] == 11: #Replace num with 0 value
         copyPreview = dfCol.copy()
+        dfPreview = df.copy()
         nullCount = copyPreview.isna().sum()
         infoString =f"Replaced {nullCount} missing values with value 0"
         st.info(infoString)
@@ -336,7 +365,10 @@ with st.expander("", expanded=True):
         with col2_11:
             st.write("New column")
             st.write(copyPreview)
-        radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 11)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview) 
+        radio = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 11)
         if  radio == "Yes":
             st.session_state['toBeProfiled'] = True
             st.session_state['copyPreview'] = copyPreview
@@ -377,6 +409,7 @@ with st.expander("", expanded=True):
         #st.session_state['df'] = df
 
     elif st.session_state['y'] == 13: #Replace num with min value
+        dfPreview = df.copy()
         copyPreview = dfCol.copy()
         minValue = report["variables"][dfCol.name]["min"]
         minValue2 = "{:.2f}".format(minValue)
@@ -391,7 +424,10 @@ with st.expander("", expanded=True):
         with col2_13:
             st.write("New column")
             st.write(copyPreview)
-        radio = st.radio("Do you want to apply these changes?", ["", "No", "Yes"], horizontal=True, index=0, key = 13)
+        st.subheader("Dataset preview")
+        dfPreview[dfCol.name] = copyPreview
+        st.write(dfPreview) 
+        radio = st.radio("Do you want to apply these changes? Keep in mind that clicking yes will be enough to apply this action permanently.", ["", "No", "Yes"], horizontal=True, index=0, key = 13)
         if  radio == "Yes":
             st.session_state['copyPreview'] = copyPreview
             st.session_state['y'] = 12

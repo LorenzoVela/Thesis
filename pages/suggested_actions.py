@@ -154,7 +154,7 @@ with body1:
 
         for col in df.columns:
             if len(pd.unique(df[col])) == 1:
-                with st.expander("Useless column", expanded=True):
+                with st.expander("Useless columns", expanded=True):
                     strDropUnique = f"The column **{col}** has the same value for all the rows (that is '{df[col][1]}'). You're suggested to drop it because it doesn't add any information to the dataset"
                     st.info(strDropUnique)
                     key1 = hash(strDropUnique)
@@ -170,20 +170,26 @@ with body1:
             if percentageNull > 25:
                 with st.expander("Null values", expanded=True):
                     if df[col].dtype == "object":
-                        strObjFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's an object column, you're suggested to replace them with its mode value, that is '{df[col].mode()}'."
+                        strObjFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's an object column, you're suggested to replace them with its mode value, that is '{df[col].mode()}', or to directly drop it."
                         st.info(strObjFill)
-                        choiceObj = st.radio("Select below", ["Don't replace null values", "Replace the null values with the mode"])
+                        choiceObj = st.radio("Select below", ["Don't replace null values", "Replace the null values with the mode", "Drop the column"])
                         if choiceObj != "Don't replace null values":
-                            droppedList.append(["nullReplacedObj", col])
-                        st.markdown("---")
+                            if choiceObj == "Replace the null values with the mode":
+                                droppedList.append(["nullReplacedObj", col])
+                            elif choiceObj == "Drop the column":
+                                droppedList.append(["column", col])
+                        #st.markdown("---")
                     elif df[col].dtype == "float64" or df[col].dtype == "Int64":
                         avgValue = "{:.2f}".format(report["variables"][col]["mean"])
-                        strNumFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's a numeric column, you're suggested to replace them with its mean value, that is '{avgValue}'."
+                        strNumFill = f"The column **{col}** has " + str("%0.2f" %(percentageNull)) + f"% of null values. Given it's a numeric column, you're suggested to replace them with its mean value, that is '{round(float(avgValue))}', or directly drop it."
                         st.info(strNumFill)
-                        choiceNum = st.radio("Select below", ["Don't replace null values", "Replace null values with the mean"])
+                        choiceNum = st.radio("Select below", ["Don't replace null values", "Replace null values with the mean", "Drop the column"])
                         if choiceNum != "Don't replace null values":
-                            droppedList.append(["nullReplacedNum", col])
-                        st.markdown("---")
+                            if choiceNum == "Replace null values with the mean":
+                                droppedList.append(["nullReplacedNum", col])
+                            elif choiceNum == "Drop the column":
+                                droppedList.append(["column", col])
+                        #st.markdown("---")
                     else:
                         ()
                         #st.error("Unrecognized col. type") 
