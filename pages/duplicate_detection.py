@@ -112,15 +112,17 @@ with body1:
                 setCompareTemp = list(df.columns.drop(colToDrop))
                 weights = []
                 setCompare = []
+                removedCols = []
                 #st.write(setCompare)
                 for col in df.columns:
                     if col in setCompareTemp and (len(pd.unique(df[col])) == len(df.index) or len(pd.unique(df[col])) == 1):
                         setCompareTemp.remove(col)
+                        removedCols.append(col)
                     else:
                         ()
                 #st.info("Select the weights for every column that will be used to calculate the similarity. For the similarity calculation are excluded the columns that have been selected for blocking and the columns that have the same value for all the rows.")
                 st.markdown("---")
-                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values and the columns with a different value for each row")
+                st.write(f"Automatically removing from the set used to calculate the similarity all the columns that have a unique values and the columns with a different value for each row, in this case: **{', '.join(column for column in removedCols)}**.\n\n This because the similarity parameter for these attributes will be 1 or 0 in every case, and won't add any additional information. Moreover have been automatically removed the attributes used for the blocking: given that these are equal for constructions within a couple, it makes no sense to calculate the distance given that it will be surely 1.")
                 colToDropWeights = st.multiselect("Select one or more additional column that won't be used to calculate the similarity between the two rows", setCompareTemp)    
                 if len(colToDropWeights) > 0:
                     setColToDropWeights = set(colToDropWeights)
@@ -148,7 +150,7 @@ with body1:
                 if threshold < 0.9:
                     st.warning("Pay attention because the computation can take up to some minutes!")
                 st.write("")
-                drop = st.checkbox("Check to drop the rows that has more null values within the same couple. To perform this no conflicts should be present.")
+                drop = st.checkbox("Check to drop more rows as possible without losing any information. This action won't modified permanently the dataset, you should explicitly save in the next page.")
                 st.write("")
                 st.write("")
                 st.session_state['weights'] = weights
@@ -182,8 +184,8 @@ with body2:
         changed = 0
         for item in candidate_links:
             i += 1
-            row1Null = df.iloc[item[0]].isna().sum(axis=0)
-            row2Null = df.iloc[item[1]].isna().sum(axis=0)
+            row2Null = df.iloc[item[0]].isna().sum(axis=0)
+            row1Null = df.iloc[item[1]].isna().sum(axis=0)
             jaroNum = 0
             totalWeight = 0
             for col, weight in zip(setCompare, weights):
@@ -197,6 +199,7 @@ with body2:
             #st.write("Similarity of couple ", i, " is ", sim)
             #st.write(df.iloc[[item[1], item[0]]])
             if sim == 1:
+                st.write("Similarity of couple ", i, " is ", sim)
                 st.write(df.iloc[[item[1], item[0]]])
                 try:
                     count += 1
@@ -230,11 +233,20 @@ with body2:
                                 break
                         if flag == "YES":
                             try:
-                                dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                                #item 0 è seconda linea -> row2 null, item 1 è la prima -> row1 null
+                                if row1Null > row2Null:
+                                    dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                                    #st.write("The two previous rows will be replaced with this one. No information is lost")
+                                    st.write(dfPreview.loc[[item[0]]])
+                                    dfPreview.drop([item[1]], axis=0, inplace=True)
+                                    changed += 1
+                                else:
+                                    dfPreview.loc[item[1], setCompare] = [result[col] for col in setCompare]
+                                    #st.write("The two previous rows will be replaced with this one. No information is lost")
+                                    st.write(dfPreview.loc[[item[1]]])
+                                    dfPreview.drop([item[0]], axis=0, inplace=True)
+                                    changed += 1
                                 st.write("The two previous rows will be replaced with this one. No information is lost")
-                                st.write(dfPreview.iloc[[item[0]]])
-                                dfPreview.drop([item[1]], axis=0, inplace=True)
-                                changed += 1
                             except:
                                 ()
                         else:

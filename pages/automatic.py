@@ -305,7 +305,7 @@ with body:
         st.subheader("New dataset real time preview")
         st.write(dfAutomatic)
         st.session_state['newdf'] = dfAutomatic.copy()
-        st.info("If you see columns with poor information you've the chance to drop them. Remind that you're also applying *permanently* all the changes above.")
+        st.warning("If you see columns with poor information you've the chance to drop them. Remind that you're also applying *permanently* all the changes above.")
         colSave, colSaveDrop, colIdle = st.columns([1,1,8], gap='small')
         with colSave:
             if st.button("Save", on_click=clean2):

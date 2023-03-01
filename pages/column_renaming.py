@@ -80,34 +80,16 @@ if st.session_state['y'] == 0:  #choose the values to replace
     newName = st.text_input("Insert the new name and press enter")
 
     if (len(newName) > 0) and (newName not in columns):
-        col11, col22, col33 = st.columns([1,1,7], gap='small')
         dfPreview = dfPreview.rename(columns={oldName:newName})
-        st.session_state['dfPreview'] = dfPreview
+        st.write(dfPreview)
+        col11, col22, col33 = st.columns([1,7,1], gap='small')
         with col11:
-            if st.button("Show preview"):
-                st.session_state['y'] = 1
-                st.experimental_rerun()
-        with col22:
             if st.button("Save"):
                 st.session_state['toBeProfiled'] = True
-                st.session_state['y'] = 2
+                st.session_state['y'] = 1
                 st.experimental_rerun()
-elif st.session_state['y'] == 1:  #show the preview
-    dfPreview = st.session_state['dfPreview']
-    st.subheader("Preview of the new dataset")
-    st.write(dfPreview.head(50))
-    col1, col2, col3 = st.columns([1,1,10], gap='small')
-    with col1:
-        if st.button("Save"):
-            st.session_state['toBeProfiled'] = True
-            st.session_state['y'] = 2
-            st.experimental_rerun()
-    with col2:
-        if st.button("Back"):
-            st.session_state['y'] = 0
-            st.experimental_rerun()
 
-elif st.session_state['y'] == 2:  
+elif st.session_state['y'] == 1:  
     df = st.session_state['dfPreview']
     successMessage = st.empty()
     if st.session_state['toBeProfiled'] == True:

@@ -66,7 +66,7 @@ with st.expander("Manual", expanded=False):
         col1, col2, col3 = st.columns(3, gap="small")
         with col1:
             st.write('Old column')
-            st.write(df[column].head(30))
+            st.write(df[column])
         with col2:
             if st.session_state['y'] == 0:
                 st.write("Edit menu")
@@ -74,13 +74,13 @@ with st.expander("Manual", expanded=False):
                 if action == "Add":
                     where = selectbox("Where", ["Start of the value", "End of the value"])
                     if where == "Start of the value":
-                        inputString = st.text_input("Provide the string")
+                        inputString = st.text_input("Provide the string (remember, if needed, the space at the end)")
                         st.session_state['string'] = inputString
                         if st.button("Go!"):
                             st.session_state['y'] = 1
                             st.experimental_rerun()
                     elif where == "End of the value":
-                        inputString = st.text_input("Provide the string")
+                        inputString = st.text_input("Provide the string (remember, if needed, the space before type the string)")
                         st.session_state['string'] = inputString
                         if st.button("Go!"):
                             st.session_state['y'] = 2
@@ -121,11 +121,17 @@ with st.expander("Manual", expanded=False):
             elif st.session_state['y'] == 4:
                 st.write("New column")
                 copyPreview = st.session_state['copyPreview']
-                st.write(copyPreview.head(30))
-                if st.button("Save"):
-                    st.session_state['toBeProfiled'] = True
-                    st.session_state['y'] = 5
-                    st.experimental_rerun()
+                st.write(copyPreview)
+                columns = st.columns([1,1,4])
+                with columns[0]:
+                    if st.button("Save"):
+                        st.session_state['toBeProfiled'] = True
+                        st.session_state['y'] = 5
+                        st.experimental_rerun()
+                with columns[1]:
+                    if st.button("Back"):
+                        st.session_state['y'] = 0
+                        st.experimental_rerun()
             
     else: #column is none
         ()
@@ -154,7 +160,7 @@ with st.expander("Automatic", expanded=True):
     st.write("")
     if st.session_state['y'] == 0:
         st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
-        column = selectbox("Choose a column _", dfCol)
+        column = selectbox("Select a column", dfCol)
         delimiters = [",", ";", " ' ", "{", "}", "[", "]", "(", ")", " \ ", "/", "-", "_", ".", "|"]
         if column != None:
             counter = 0
@@ -176,7 +182,7 @@ with st.expander("Automatic", expanded=True):
                 st.write("")
                 st.write("")        
                 st.write('Old column')
-                st.write(df[column].head(30))
+                st.write(df[column])
             with col2:
                 actions = []
                 #st.write("Edit menu")
@@ -216,7 +222,7 @@ with st.expander("Automatic", expanded=True):
                                             copyPreview[i] = tempStringList[0]
                                      
                     st.write("New column")
-                    st.write(copyPreview.head(50))
+                    st.write(copyPreview)
                     st.session_state['copyPreview'] = copyPreview
                     newUnique = copyPreview.duplicated().value_counts()[0]
                     st.write("Unique rows of the new column: ", newUnique)
