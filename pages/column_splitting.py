@@ -107,7 +107,7 @@ with body1:
     if st.session_state['y'] == 0:  #choose the values to replace
         if avoid == 0:
             st.subheader("Dataset preview")
-            st.write(df.head(200))
+            st.write(df)
             columns = list(df.columns)
             columnsFiltered = []
             for col in columns:
@@ -175,7 +175,7 @@ with body1:
                     oneLinePreview = pd.DataFrame(data, columns=['First column', 'Second column'])
                     st.write(oneLinePreview)
                     firstColumn = st.text_input("Insert the name of the new 'First column'")
-                    secondColumn = st.text_input("Insert the name of the new 'Second column' and press Enter")
+                    secondColumn = st.text_input(f"Insert the name of the new 'Second column' **and press Enter**")
                     columnsLower = [str(element).lower() for element in df.columns]
                     firstColumnLower = firstColumn.lower()
                     secondColumnLower = secondColumn.lower()
@@ -187,9 +187,11 @@ with body1:
                         st.error("One of the two columns is already present in the dataset")
                     else:
                         if num < len(df.index):
-                            str1 = "Content in " + firstColumn +" and null in " + secondColumn
-                            str2 = "Content in " + secondColumn +" and null in " + firstColumn 
-                            choice = st.radio("With the rows that do not contain the delimiter what you'd like to do?",["None", str1, str2])
+                            st.write("")
+                            str1 =f"Fill only  {firstColumn}  and None in {secondColumn}"
+                            str2 =f"Fill only  {secondColumn}  and None in {firstColumn}"
+                            choice = st.radio("With the rows that do not contain the delimiter and consequentially can't be split, what would you like to do?",["None", str1, str2])
+                            
                             if choice == str1:
                                 st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter, 1]
                                 if st.button("Go!", on_click=clean1):
@@ -202,7 +204,6 @@ with body1:
                             st.session_state['itemToPass'] = [column, firstColumn, secondColumn, delimiter, 1]
                             if st.button("Go!", on_click=clean1):
                                 ()
-                            
         st.markdown("---")
         if avoid == 0:
             if st.button("Back to Homepage"):
@@ -240,7 +241,7 @@ with body2:
         dfPreview.insert(loc=colIndex, column = str(item[1]), value=valFirst)
         dfPreview.insert(loc=(colIndex+1), column = str(item[2]), value=valSecond)
         dfPreview.drop(item[0], inplace=True, axis=1)
-        st.write(dfPreview.head(100))
+        st.write(dfPreview)
         st.warning("This action will be permanent")
         col1, col2, col3 = st.columns([1,1,10], gap='small')
         st.session_state['newdf'] = dfPreview.copy()
@@ -275,7 +276,7 @@ if st.session_state['y'] == 2:
         successMessage.success("Profiling updated!")
         st.session_state['toBeProfiled'] = False
         st.subheader("New dataset")
-        st.write(df.head(50))
+        st.write(df)
     st.markdown("---")
     if avoid == 0:
             if st.button("Homepage"):

@@ -54,7 +54,7 @@ report = st.session_state['report']
 df = st.session_state['df']
 dfCol = st.session_state['dfCol']
 
-st.title("Filter column values")
+st.title("Edit column values")
 with st.expander("Manual", expanded=False):
     st.write("In this page you're allowed to select a column in which apply some splitting/changes to its values")
     column = selectbox("Choose a column", dfCol)
@@ -167,51 +167,56 @@ with st.expander("Automatic", expanded=True):
             importantDelimiters = []
             copyPreview = df[column].copy()
             unique = df.duplicated(subset=column).value_counts()[0]
-            col1_A, col2_A, col3_A = st.columns([0.1, 0.1, 1])
+            st.write("")
+            col1_A, col2_A, col3_A, col4_A = st.columns([1, 1, 1, 6.2])
+            actions = []
+                #st.write("Edit menu")
+            for item in delimiters:
+                counter = 0
+                for i in range(int(len(df.index)/10)):  #search for a delimiter in the first 10% of the dataset
+                    x = str(copyPreview[i]).find(item)
+                    if x > 0:
+                        counter += 1
+                if counter >= (len(df.index)/50):  #if in the first 10%, is present at least the 20% then we should propose it!
+                    importantDelimiters.append(item)
+            #st.write(importantDelimiters)
+            for item in importantDelimiters:
+                stringToAppend = "Cut everything before " + item
+                actions.append(stringToAppend)
+                stringToAppend = "Cut everthing after " + item
+                actions.append(stringToAppend)
             with col1_A:
+                st.write("")
                 st.write("Unique rows: ", unique)
             with col2_A:
-                st.write("Duplicate rows", len(df.index) - unique)
+                st.write("")
+                st.write("Duplicate rows: ", len(df.index) - unique)
+            with col4_A:
+                if len(actions) == 0:
+                    st.error("It's not possible to split this column, as no delimiters are detected")
+                    action = []
+                else:
+                    action = selectbox("Choose an action", actions)
             #st.write("Unique rows: ", df.duplicated(subset=column).value_counts())
             col1, col2, col3 = st.columns(3, gap="small")
-            with col1:
-                st.write("")
-                st.write("")
-                st.write("")
-                st.write("")
-                st.write("")
-                st.write("")        
+            with col1:       
                 st.write('Old column')
                 st.write(df[column])
             with col2:
-                actions = []
-                #st.write("Edit menu")
-                for item in delimiters:
-                    counter = 0
-                    for i in range(int(len(df.index)/10)):  #search for a delimiter in the first 10% of the dataset
-                        x = str(copyPreview[i]).find(item)
-                        if x > 0:
-                            counter += 1
-                    if counter >= (len(df.index)/50):  #if in the first 10%, is present at least the 20% then we should propose it!
-                        importantDelimiters.append(item)
-                #st.write(importantDelimiters)
-                for item in importantDelimiters:
-                    stringToAppend = "Cut everything before " + item
-                    actions.append(stringToAppend)
-                    stringToAppend = "Cut everthing after " + item
-                    actions.append(stringToAppend)
-                action = selectbox("Choose an action", actions)
-                if action != None:
+                if action != None and len(actions) > 0:
                     for item in importantDelimiters:
                         if item in action:
                             if "before" in action:
                                 st.session_state['item'] = item
                                 st.session_state['action'] = "before"
                                 for i in range(len(df.index)):
-                                    if item in copyPreview[i]:
+                                    if item in str(copyPreview[i]):
                                         tempStringList = str(copyPreview[i]).split(item, 1)
                                         if len(tempStringList) > 0:
-                                            copyPreview[i] = tempStringList[1]
+                                            if len(tempStringList[1]) == 0:
+                                                copyPreview[i] = None
+                                            else:
+                                                copyPreview[i] = tempStringList[1]
                             elif "after" in action:
                                 st.session_state['item'] = item
                                 st.session_state['action'] = "after"
@@ -219,7 +224,10 @@ with st.expander("Automatic", expanded=True):
                                     if item in str(copyPreview[i]):
                                         tempStringList = str(copyPreview[i]).split(item, 1)
                                         if len(tempStringList) > 0:
-                                            copyPreview[i] = tempStringList[0]
+                                            if len(tempStringList[0]) == 0:
+                                                copyPreview[i] = None
+                                            else:
+                                                copyPreview[i] = tempStringList[0]
                                      
                     st.write("New column")
                     st.write(copyPreview)
