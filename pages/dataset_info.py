@@ -158,6 +158,8 @@ with colMain1:
                 if col != col1 and col in col1:
                     st.write(f"**{col}** and **{col1}** can potentially represent the same data given their similar column name")
                     name_counter += 1
+                    ##TODO
+                    #columns here e metti come opzione anche il column renaming (hai gia due argomenti, da capire il session state di col renaming)
                     if st.button("Manage", key=name_counter):
                         st.session_state['y'] = 0
                         st.session_state['arg'] = df[col].copy(deep=False)
