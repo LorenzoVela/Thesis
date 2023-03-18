@@ -33,13 +33,16 @@ st.title("📁Upload your dataset:")
 
 def uploading_csv():
     #st.header("📁Upload your dataset:")
-    uploaded_file = st.file_uploader("Choose a file")
+    uploaded_file = st.file_uploader(f"Choose a file, the tool accepts both **.csv** and **.xlsx** files.")
     if uploaded_file is not None:
         st.session_state['filename'] = str(uploaded_file.name)
         if ".csv" in uploaded_file.name:
             df = pd.read_csv(uploaded_file)
         else:
-            df = pd.read_excel(uploaded_file)
+            try:
+                df = pd.read_excel(uploaded_file)
+            except:
+                st.error("The dataset should be a .csv or .xlsx file. Check the format please")
         return df
     else:
         ()
@@ -67,7 +70,10 @@ if df is not None:
     if x == 0:
         for col in df.columns:
             if df[col].dtype == "float64":
-                df[col] = df[col].astype("Int64")
+                try:
+                    df[col] = df[col].astype("Int64")
+                except:
+                    ()
         st.session_state['df'] = df
         message.success("File uploaded correctly! Please wait, profiling in progress..")
         profile_csv(df)

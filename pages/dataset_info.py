@@ -123,7 +123,8 @@ with colMain1:
                 with col1:
                     st.error("This attribute has more than 25" + "%" + " of null values")
                 with col2:
-                    if st.button("Handle null values", key=count):
+                    key1 = count + nullButton
+                    if st.button("Handle null values", key=key1):
                         st.session_state['from'] = 0
                         st.session_state['y'] = 0
                         st.session_state['arg'] = df[col].copy(deep=False)
