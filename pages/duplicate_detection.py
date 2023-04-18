@@ -182,79 +182,89 @@ with body2:
         i = 0
         count = 0
         changed = 0
-        for item in candidate_links:
-            i += 1
-            row2Null = df.iloc[item[0]].isna().sum(axis=0)
-            row1Null = df.iloc[item[1]].isna().sum(axis=0)
-            jaroNum = 0
-            totalWeight = 0
-            for col, weight in zip(setCompare, weights):
-                if str(weight[1]) == col:
-                    totalWeight += weight[0]
-                    jaroNum += (jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col])) * weight[0])
-                    #st.write(jaroNum, col)
-            #st.write("Sum of all the wighted similarities", jaroNum)
-            #st.write("Sum of all the weights" , totalWeight)
-            sim = jaroNum/totalWeight
-            #st.write("Similarity of couple ", i, " is ", sim)
-            #st.write(df.iloc[[item[1], item[0]]])
-            if sim == 1:
-                st.write("Similarity of couple ", i, " is ", sim)
-                st.write(df.iloc[[item[1], item[0]]])
-                try:
-                    count += 1
-                    changed += 1
-                    st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
-                    dfPreview.drop([item[0]], axis=0, inplace=True)
+        st.session_state['droppedRow'] = []
+        with st.form("form"):
+            for item in candidate_links:
+                i += 1
+                row2Null = df.iloc[item[0]].isna().sum(axis=0)
+                row1Null = df.iloc[item[1]].isna().sum(axis=0)
+                jaroNum = 0
+                totalWeight = 0
+                for col, weight in zip(setCompare, weights):
+                    if str(weight[1]) == col:
+                        totalWeight += weight[0]
+                        jaroNum += (jaro.jaro_winkler_metric(str(df.iloc[item[0]][col]), str(df.iloc[item[1]][col])) * weight[0])
+                        #st.write(jaroNum, col)
+                #st.write("Sum of all the wighted similarities", jaroNum)
+                #st.write("Sum of all the weights" , totalWeight)
+                sim = jaroNum/totalWeight
+                #st.write("Similarity of couple ", i, " is ", sim)
+                #st.write(df.iloc[[item[1], item[0]]])
+                if sim == 1:
+                    st.write("Similarity of couple ", i, " is ", sim)
+                    st.write(df.iloc[[item[1], item[0]]])
+                    try:
+                        count += 1
+                        changed += 1
+                        st.write("Given that these 2 rows are equal, it's arbitrarily dropped the second one. NO information is lost")
+                        dfPreview.drop([item[0]], axis=0, inplace=True)
 
-                except:
-                    ()
-                st.markdown("---")
-            elif sim >= threshold:     #with 0.7 -> 40second
-                st.write("Similarity of couple ", i, " is ", sim)
-                st.write(df.iloc[[item[1], item[0]]])
-                count += 1
-                if (row1Null + row2Null) >= 0:
-                    if drop:
-                        result = {}
-                        row1 = df.iloc[item[0]]
-                        row2 = df.iloc[item[1]]
-                        flag = "YES"
-                        #provare sempre a droppare row1
-                        for attr in setCompare:
-                            if str(row1[attr]) in ['<NA>', 'nan']:
-                                result[attr] = row2[attr]
-                            elif str(row2[attr]) in ['<NA>', 'nan']:
-                                result[attr] = row1[attr]
-                            elif str(row1[attr]) == str(row2[attr]):
-                                result[attr] = row1[attr]
-                            else:
-                                flag = "NO"
-                                break
-                        if flag == "YES":
-                            try:
-                                #item 0 è seconda linea -> row2 null, item 1 è la prima -> row1 null
-                                if row1Null > row2Null:
-                                    dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
-                                    #st.write("The two previous rows will be replaced with this one. No information is lost")
-                                    st.write(dfPreview.loc[[item[0]]])
-                                    dfPreview.drop([item[1]], axis=0, inplace=True)
-                                    changed += 1
+                    except:
+                        ()
+                    st.markdown("---")
+                elif sim >= threshold:     #with 0.7 -> 40second
+                    st.write("Similarity of couple ", i, " is ", sim)
+                    st.write(df.iloc[[item[1], item[0]]])
+                    count += 1
+                    if (row1Null + row2Null) >= 0:
+                        if drop:
+                            result = {}
+                            row1 = df.iloc[item[0]]
+                            row2 = df.iloc[item[1]]
+                            flag = "YES"
+                            #provare sempre a droppare row1
+                            for attr in setCompare:
+                                if str(row1[attr]) in ['<NA>', 'nan']:
+                                    result[attr] = row2[attr]
+                                elif str(row2[attr]) in ['<NA>', 'nan']:
+                                    result[attr] = row1[attr]
+                                elif str(row1[attr]) == str(row2[attr]):
+                                    result[attr] = row1[attr]
                                 else:
-                                    dfPreview.loc[item[1], setCompare] = [result[col] for col in setCompare]
-                                    #st.write("The two previous rows will be replaced with this one. No information is lost")
-                                    st.write(dfPreview.loc[[item[1]]])
-                                    dfPreview.drop([item[0]], axis=0, inplace=True)
-                                    changed += 1
-                                st.write("The two previous rows will be replaced with this one. No information is lost")
-                            except:
-                                ()
-                        else:
-                            ()
-                            #droppedRow = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
-            #if i == 70:
-            #    break
-                st.markdown("---")
+                                    flag = "NO"
+                                    break
+                            if flag == "YES":
+                                try:
+                                    #item 0 è seconda linea -> row2 null, item 1 è la prima -> row1 null
+                                    if row1Null > row2Null:
+                                        dfPreview.loc[item[0], setCompare] = [result[col] for col in setCompare]
+                                        #st.write("The two previous rows will be replaced with this one. No information is lost")
+                                        st.write(dfPreview.loc[[item[0]]])
+                                        dfPreview.drop([item[1]], axis=0, inplace=True)
+                                        changed += 1
+                                    else:
+                                        dfPreview.loc[item[1], setCompare] = [result[col] for col in setCompare]
+                                        #st.write("The two previous rows will be replaced with this one. No information is lost")
+                                        st.write(dfPreview.loc[[item[1]]])
+                                        dfPreview.drop([item[0]], axis=0, inplace=True)
+                                        changed += 1
+                                    st.write("The two previous rows will be replaced with this one. No information is lost")
+                                except:
+                                    ()
+                            else:
+                                #()
+                                choice = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
+                                if choice == "Drop first line":
+                                    st.session_state['droppedRow'][i] = item[1]
+                                elif choice == "Drop second line":
+                                    st.session_state['droppedRow'][i] = item[0]
+                #if i == 70:
+                #    break
+            save_button = st.form_submit_button(label="Save")
+            if save_button:
+                # do something here
+                ()
+        st.markdown("---")
         st.info(f"Above the similarity threshold of {threshold}, there were {count} couples of similar rows to display. Out of these **{changed}** rows were dropped.")
         st.write("")
         columns1 = st.columns([1,10,1], gap='small')
