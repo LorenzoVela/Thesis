@@ -254,30 +254,48 @@ with body2:
                             else:
                                 #()
                                 choice = st.radio("Select", ("None", "Drop first line", "Drop second line"), key=i)
+                                st.write("")
                                 if choice == "Drop first line":
-                                    st.session_state['droppedRow'][i] = item[1]
+                                    st.session_state['droppedRow'].append(item[1])
                                 elif choice == "Drop second line":
-                                    st.session_state['droppedRow'][i] = item[0]
+                                    st.session_state['droppedRow'].append(item[0])
+                                else:
+                                    st.session_state['droppedRow'].append(-1)
+                    st.markdown("---")
                 #if i == 70:
                 #    break
+            st.info(f"Above the similarity threshold of {threshold}, there were {count} couples of similar rows to display. Out of these **{changed}** rows were dropped.")
+            st.warning("This action will be permanent, the dataset will be also profiled again. Please wait until the new dataset is showed.")
+            st.write("")
             save_button = st.form_submit_button(label="Save")
             if save_button:
-                # do something here
-                ()
-        st.markdown("---")
-        st.info(f"Above the similarity threshold of {threshold}, there were {count} couples of similar rows to display. Out of these **{changed}** rows were dropped.")
-        st.write("")
-        columns1 = st.columns([1,10,1], gap='small')
-        dfPreview = dfPreview.reset_index(drop=True)
-        st.subheader("New dataset preview")
-        st.write(dfPreview)
-        st.session_state['dfPreview'] = dfPreview
-        with columns1[0]:
-            if st.button("Save!",on_click=clean4):
-                ()
-        with columns1[2]:
-            if st.button("Back",on_click=clean0):
-                ()
+                for item in st.session_state['droppedRow']:
+                    if item != -1:
+                        dfPreview = dfPreview.drop(item)
+                dfPreview = dfPreview.reset_index(drop=True)
+                st.session_state['dfPreview'] = dfPreview
+                slate2.empty()
+                st.session_state['y'] = 4
+                st.session_state['Once'] = True
+                st.experimental_rerun()
+                #clean4
+        #st.markdown("---")
+        #st.info(f"Above the similarity threshold of {threshold}, there were {count} couples of similar rows to display. Out of these **{changed}** rows were dropped.")
+        #st.write("")
+        #columns1 = st.columns([1,10,1], gap='small')
+        #dfPreview = dfPreview.reset_index(drop=True)
+        #st.subheader("New dataset preview")
+        #st.write(dfPreview)
+        #st.session_state['dfPreview'] = dfPreview
+        #with columns1[0]:
+        #    if st.button("Save!",on_click=clean4):
+        #        ()
+        #with columns1[2]:
+        #    if st.button("Back",on_click=clean0):
+        #        ()
+        if st.button("Back",on_click=clean0):
+            ()
+            #TODO -> colonna in tutti gli stati validi con Back e Homepage
 
 if st.session_state['y'] == 2:
     st.session_state['y'] = 0
@@ -289,10 +307,12 @@ if st.session_state['y'] == 3:
 
 if st.session_state['y'] == 4:
     tempdf = st.session_state['dfPreview']
+    st.subheader("New dataset")
+    st.write(tempdf)
     if st.session_state['Once']:
         with st.spinner("Please wait while the new dataset is profiled again.."):
             profileAgain(tempdf)
-    switch_page("Homepage")
+    #switch_page("Homepage")
 st.markdown("---")
 if st.button("Homepage", on_click=cleanHome):
     ()
